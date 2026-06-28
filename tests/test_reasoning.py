@@ -9,6 +9,7 @@ from src.reasoning import (
     DEFAULT_TEMPLATE_REUSE_CAP,
     _pick_template,
     _rank_band,
+    _truncate,
     build_evidence_ledger,
     load_skeletons_from_yaml,
     render_top_100_reasoning,
@@ -60,6 +61,20 @@ def _raw(**overrides) -> dict:
     }
     base.update(overrides)
     return base
+
+
+def test_truncate_never_breaks_mid_word() -> None:
+    out = _truncate("built BM25-only ranker for serving", 12)
+    assert not out.rstrip("…").endswith(("-", "o"))
+    assert " " in out
+    long = "the quick brown fox jumps over the lazy dog and runs around the yard"
+    cut = _truncate(long, 30)
+    assert cut.endswith("…")
+    assert " " in cut.rstrip("…")
+    assert not cut.rstrip("…").endswith((" ", ",", ".", ";", ":", "-"))
+    short = "tiny text"
+    assert _truncate(short, 100) == short
+    assert _truncate("", 50) == ""
 
 
 def test_rank_band_buckets() -> None:

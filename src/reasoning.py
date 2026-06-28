@@ -57,7 +57,11 @@ def _truncate(text: str, cap: int = DEFAULT_SNIPPET_CHAR_CAP) -> str:
     text = (text or "").strip()
     if len(text) <= cap:
         return text
-    return text[: cap - 1].rstrip() + "…"
+    cut = text[: cap - 1]
+    last_ws = cut.rfind(" ")
+    if last_ws > (cap - 1) * 0.6:
+        cut = cut[:last_ws]
+    return cut.rstrip(",.;:- \t") + "…"
 
 
 def _rank_band(rank: int) -> str:
