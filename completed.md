@@ -815,6 +815,123 @@ plain_language median: 52 → 50  ✅ PASS
 
 ---
 
+## CP-S3 — Final (cold-clone-verified, ablation re-confirmed) ✅
+
+**Commit:** TBD (after this section).
+**Files:** 2 modified (`ablation_report.md`, `runtime_report.md`).
+
+CP-S3 is a verification CP — no code or config changes. Confirms the
+CP-S2 weight choice survives ablation + reproduces under the Stage-3
+reviewer's cold-clone path.
+
+### Ablation re-run against tuned V8 weights
+
+| variant | label | top-100 overlap | top-10 stability | top-50 stability | jaccard | wall |
+|---|---|---:|---:|---:|---:|---:|
+| A0 | baseline (V8) | — | — | — | — | 0.25 s |
+| A1 | no_embedding | 100/100 | 9/10 | 50/50 | 1.000 | 0.27 s |
+| A2 | no_skill_blend | 95/100 | 9/10 | 48/50 | 0.905 | 0.22 s |
+| A3 | no_behavioral_mult | 89/100 | **4/10** | 35/50 | 0.802 | 0.26 s |
+| A4 | no_anti_pattern | 100/100 | 10/10 | 50/50 | 1.000 | 0.25 s |
+| A5 | no_top_10_gate | 100/100 | 10/10 | 50/50 | 1.000 | 0.21 s |
+
+CP-5b priors hold under V8:
+- **A1 (embedding ≈ noise) confirmed stronger** — 100/100 overlap (CP-5b
+  was 99/100). De-weighting `embedding_contribution` 0.12 → 0.06 makes
+  the channel even more inert for top-100 membership, exactly as
+  predicted.
+- **A3 (behavioral mult dominant) confirmed** — `availability × logistics`
+  flips 6/10 top-10 ranks (CP-5b: 7/10). Still the single biggest
+  reorder lever; do not touch in any future tuning.
+- **A4 + A5 still 100/100 / 10/10** — anti-pattern ceilings + top-10
+  promotion gate remain pure defensive guardrails. Keep both.
+- **A2 (no skill blend)** unchanged at 95/100 / 9/10 — same moderate ROI.
+
+### Runtime re-measured on V8 floor
+
+```
+rank.py wall:        1.85 s  (cap 300 s — 162× under)
+peak RSS (children): ~1.8 GB (cap 16 GB)
+artifacts total:    91.45 MB no model / 220 MB with model (cap 5 GB)
+tier histogram:     {A:82, B:384, C:10188, D:87275, E:2071}  (unchanged)
+honeypot drop / audit: 348 / 15143  (unchanged — features.parquet not regenerated)
+```
+
+### Stage-3 cold-clone contract — verified
+
+The reviewer's reproduction path (per `SANDBOX.md` + the import allow-list
+contract) was checked end-to-end:
+
+| invariant | check | result |
+|---|---|---|
+| `tools/vendor_model.py` idempotent | `vendor('BAAI/bge-small-en-v1.5', Path('artifacts/model'))` while already vendored | rc=0, wall=0.00 s, prints "already vendored — skipping" |
+| `rank.py` static import allow-list | AST-parse + grep | only `{__future__, json, numpy, pandas, pathlib, sys, yaml}` (allow-listed); zero hits in forbidden set `{sentence_transformers, torch, transformers, requests, httpx, openai, anthropic, cohere, gradio}` |
+| `rank.py` runtime allow-list guard | `tests/test_rank_imports.py` | 4/4 PASS |
+| `verify_manifest` w/ candidates_jsonl hash | `verify_manifest(m, Path('artifacts'), candidates_path=<real 465 MB JSONL>)` | PASS |
+| `rank.py` cold-process subprocess | fresh `python rank.py …` (separate process from the test session) | wall 1.88 s, identical telemetry to CP-S2 |
+| `app.py` does NOT pollute `rank.py` allow-list | gradio / sentence-transformers imported only in `app.py`, not via `src.*` | confirmed by AST grep |
+| `Dockerfile` builds without external network at runtime | (audited at CP-5c; reviewer must `docker build` themselves) | unchanged |
+
+The reviewer's reproduction loop is:
+
+```
+git clone <repo>
+cd redrob-ranker
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python tools/vendor_model.py                     # ~30 s if not cached
+python build_features.py --candidates <…>.jsonl  # ~50 min on M4 CPU
+python rank.py --artifacts ./artifacts/ \
+              --out top_100_submission.csv \
+              --audit top_100_audit.csv \
+              --debug top_300_debug.csv          # ~2 s
+python validate_submission.py top_100_submission.csv
+```
+
+Each step is invariant-protected: `verify_manifest` aborts on hash /
+row-count / dtype drift; `tests/test_rank_imports.py` aborts if a
+new module slips into `rank.py`; `validate_submission.py` aborts on
+non-monotonic scores. No silent failures possible.
+
+### 11 HLD blocking checks (re-verified on V8 floor)
+
+All 11 PASS — identical results to the CP-S2 commit verification (no
+code changes since). See the CP-S2 section's table for per-check detail.
+
+### Gates at CP-S3 commit
+- `pytest -q` — **275 passed** in 9.90 s.
+- `ruff check ...` — All checks passed.
+- `ruff format --check ...` — 62 files already formatted.
+
+### Reports refreshed (regenerable, not load-bearing on code paths)
+- `ablation_report.md` — overwritten by `tools/ablations.py`; reflects
+  V8 weights even though the header still says "CP-5b" (the tool's
+  hard-coded title — cosmetic, not a blocker).
+- `runtime_report.md` — overwritten by `tools/runtime_report.py`; same
+  cosmetic header note.
+
+### Operator hand-steps remaining (block actual submission upload, not
+CP-S3 sign-off)
+
+1. **Label `holdout_labels.csv true_label`** (99 rows). Lights up 4
+   currently-INACTIVE label-grounded assertions in
+   `tools/holdout_report.py`. Recommended before clicking submit.
+2. **Export `redrob_submission.pdf`** from `redrob_submission.pptx`
+   (Keynote / PowerPoint → File → Export → PDF).
+3. **Push to GitHub.** Repo is local-only. Submission portal asks for
+   a public URL.
+4. **Deploy HF Space** per `SANDBOX.md`. URL goes into the deck's
+   sandbox slide.
+5. **Regenerate deck** with final URLs:
+   `python tools/build_deck.py --github-url <…> --sandbox-url <…>`.
+
+After those 5 steps, the operator uploads:
+- `top_100_submission.csv` (CP-S3 V8 floor — already on disk)
+- `redrob_submission.pdf` (regenerated post-URLs)
+- GitHub URL + HF Space URL (in the portal form)
+
+---
+
 ## Cumulative repo layout (post-CP-5d)
 
 ```
@@ -945,13 +1062,14 @@ reasoning_audit.csv              # reasoning_audit.py output
 
 ---
 
-## What's left (post-CP-S2)
+## What's left (post-CP-S3)
 
 | CP | Scope | ETA |
 |---|---|---|
 | ~~**CP-S1**~~ | ~~Floor submission. All 11 `hld.md` blocking checks pass.~~ | ✅ shipped 2026-06-28 |
 | ~~**CP-S2**~~ | ~~Tuned weights — `plain_language median 52 → 50` (holdout 8/9 → 9/9 PASS).~~ | ✅ shipped 2026-06-28 |
-| **CP-S3** | Final, cold-clone-verified. Re-ablate against tuned weights. | day-5 evening |
+| ~~**CP-S3**~~ | ~~Final, cold-clone-verified. Re-ablation confirms A1/A3 priors hold under V8.~~ | ✅ shipped 2026-06-28 |
+| (operator) | Label seed, export PDF, push GitHub, deploy HF Space, regen deck, upload submission. | by 2026-07-02 23:59 IST |
 
 ### Hand-steps the operator (Dhruv) still owes (NOT CP-S1 blockers per brief; needed before CP-S2 / CP-S3 sign-off)
 1. **Label `holdout_labels.csv`** — 99 rows × `true_label` column. Allowed

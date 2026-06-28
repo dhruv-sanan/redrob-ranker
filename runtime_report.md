@@ -5,11 +5,11 @@
 | stage | wall | notes |
 |---|---:|---|
 | build_features.py (offline) | 3050 s (50.8 min) | encoder-dominated; CPU M4 |
-| rank.py (online) | 1.87 s | this run; hard cap 300 s |
+| rank.py (online) | 1.85 s | this run; hard cap 300 s |
 
 ## Peak memory
 
-- rank.py subprocess peak RSS: **1774.8 MB**
+- rank.py subprocess peak RSS: **1779.2 MB**
 - (build_features.py peak ≈ 2 GB, dominated by BGE model in RAM + batched encoding)
 
 ## Artifact disk
@@ -54,8 +54,8 @@
   "top_10_gate_pool_size": 275,
   "top_10_relaxation_used": 2,
   "ceilings": {
-    "score_at_rank_51": 0.6229228377342224,
-    "score_at_rank_101": 0.5612537860870361,
+    "score_at_rank_51": 0.6263726949691772,
+    "score_at_rank_101": 0.5536344647407532,
     "rank_50_clipped_count": 41093,
     "rank_100_clipped_count": 0
   },

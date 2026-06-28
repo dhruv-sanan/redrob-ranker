@@ -7,12 +7,12 @@ Baseline: **A0** (baseline)
 
 | variant | label | top-100 overlap | top-100 % | top-10 stability | top-50 stability | jaccard | wall (s) |
 |---|---|---:|---:|---:|---:|---:|---:|
-| A0 | baseline | — | — | — | — | — | 0.21 |
-| A1 | no_embedding | 99/100 | 99% | 10/10 | 50/50 | 0.980 | 0.22 |
-| A2 | no_skill_blend | 95/100 | 95% | 9/10 | 49/50 | 0.905 | 0.23 |
-| A3 | no_behavioral_mult | 90/100 | 90% | 3/10 | 36/50 | 0.818 | 0.20 |
-| A4 | no_anti_pattern | 100/100 | 100% | 10/10 | 50/50 | 1.000 | 0.20 |
-| A5 | no_top_10_gate | 100/100 | 100% | 10/10 | 50/50 | 1.000 | 0.17 |
+| A0 | baseline | — | — | — | — | — | 0.25 |
+| A1 | no_embedding | 100/100 | 100% | 9/10 | 50/50 | 1.000 | 0.27 |
+| A2 | no_skill_blend | 95/100 | 95% | 9/10 | 48/50 | 0.905 | 0.22 |
+| A3 | no_behavioral_mult | 89/100 | 89% | 4/10 | 35/50 | 0.802 | 0.26 |
+| A4 | no_anti_pattern | 100/100 | 100% | 10/10 | 50/50 | 1.000 | 0.25 |
+| A5 | no_top_10_gate | 100/100 | 100% | 10/10 | 50/50 | 1.000 | 0.21 |
 
 ## Variant definitions
 
