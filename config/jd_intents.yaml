@@ -3,11 +3,11 @@
 # Anti-pattern intents are NOT here — embeddings encode similarity, not negation.
 
 intents:
-  - production retrieval and ranking systems
-  - vector search infrastructure and embeddings at scale
-  - LLM fine-tuning LoRA PEFT
-  - ranking evaluation NDCG MRR MAP A_B testing
-  - hybrid sparse-dense IR
-  - recommendation systems at product companies
-  - applied NLP and information retrieval
-  - distributed inference and serving
+  - embeddings retrieval system in production using BGE or sentence-transformers deployed to real users
+  - ranking search or recommendation system shipped end-to-end to users at meaningful scale
+  - hybrid dense and sparse retrieval with reranking and learning-to-rank models
+  - ranking evaluation with offline NDCG and online A/B testing infrastructure
+  - LLM integration with fine-tuning and prompt engineering at production scale
+  - recommendation system built at a product company with applied machine learning
+  - Python backend engineer writing production code with deployment and infrastructure
+  - applied AI for candidate matching on a talent marketplace or HR-tech platform
