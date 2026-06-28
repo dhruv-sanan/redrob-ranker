@@ -15,12 +15,13 @@ Design constraints (problem.md §3, lld.md §4 reasoning-audit edge cases):
 
 from __future__ import annotations
 
+import hashlib
 from collections import Counter
 from collections.abc import Iterable
 from typing import Any
 
 DEFAULT_SNIPPET_CHAR_CAP = 140
-DEFAULT_TEMPLATE_REUSE_CAP = 12
+DEFAULT_TEMPLATE_REUSE_CAP = 8
 CONCERN_TOKENS: tuple[str, ...] = (
     "however",
     "limited",
@@ -81,19 +82,25 @@ def _is_non_technical(title: str) -> bool:
     return any(tok in lower for tok in NON_TECH_TITLE_TOKENS)
 
 
-def _primary_positive_snippet(career: list[dict[str, Any]] | None) -> tuple[str, str]:
-    """Return (snippet, employer) — the longest non-empty role description
-    available, capped at DEFAULT_SNIPPET_CHAR_CAP characters."""
-    best_desc = ""
-    best_employer = ""
-    for role in career or []:
-        desc = (role.get("description") or "").strip()
-        if not desc:
-            continue
-        if len(desc) > len(best_desc):
-            best_desc = desc
-            best_employer = (role.get("company") or "").strip()
-    return _truncate(best_desc), best_employer
+def _primary_positive_snippet(
+    candidate_id: str, career: list[dict[str, Any]] | None
+) -> tuple[str, str]:
+    """Return (snippet, employer) — one non-empty role description picked
+    deterministically by ``hash(candidate_id) % len(non_empty_roles)``.
+    Breaks the visual uniformity from synthetic-dataset role-description
+    reuse without changing the candidate's rank. Capped at
+    DEFAULT_SNIPPET_CHAR_CAP characters."""
+    non_empty = [r for r in (career or []) if (r.get("description") or "").strip()]
+    if not non_empty:
+        return "", ""
+    if len(non_empty) == 1:
+        role = non_empty[0]
+    else:
+        digest = hashlib.sha256((candidate_id or "").encode("utf-8")).hexdigest()
+        role = non_empty[int(digest, 16) % len(non_empty)]
+    desc = (role.get("description") or "").strip()
+    employer = (role.get("company") or "").strip()
+    return _truncate(desc), employer
 
 
 def _top_trust_skill(
@@ -215,7 +222,8 @@ def build_evidence_ledger(
     signals = raw.get("redrob_signals") or {}
     scores = signals.get("skill_assessment_scores") or {}
 
-    primary, primary_employer = _primary_positive_snippet(career)
+    candidate_id = str(feature_row.get("candidate_id") or "")
+    primary, primary_employer = _primary_positive_snippet(candidate_id, career)
     secondary = _top_trust_skill(skills, scores)
     logistics = _logistics_fact(profile, signals)
     concern = _concern_fact(feature_row, raw)
