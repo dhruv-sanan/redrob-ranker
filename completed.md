@@ -149,7 +149,7 @@ All Tier-A real fits → Tier A. All stuffers → Tier E. Concurrent advisor
 
 ## CP-3 — Embeddings + full build_features.py ✅
 
-**Commit:** `<TBD-pending-CP-3-commit>` (2026-06-28).
+**Commit:** `79bc5d8` (2026-06-28).
 **Files:** 9 added/modified, +~600 LOC (`src/embeddings.py`,
 `tools/vendor_model.py`, `tests/test_embeddings.py`,
 `tests/test_build_features_e2e.py`, full-form `build_features.py`,
@@ -336,7 +336,7 @@ redrob-ranker/
 ## Commit history
 
 ```
-<TBD>    feat(embeddings): vendored BGE-small + full build_features pipeline (CP-3)
+79bc5d8  feat(embeddings): vendored BGE-small + full build_features pipeline (CP-3)
 7037ed9  feat(features): 9 feature builders + config + pipeline + build_features.py skeleton (CP-2)
 13542e4  feat(skeleton): repo init + reference_date + parsing + manifest + 50-candidate fixture (CP-1)
 ```
