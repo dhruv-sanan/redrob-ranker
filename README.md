@@ -1,10 +1,33 @@
 # redrob-ranker
 
+[![ci](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-292%20passing-brightgreen)](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml)
+[![python](https://img.shields.io/badge/python-3.11-blue)](https://www.python.org/downloads/release/python-3110/)
+[![rank.py](https://img.shields.io/badge/rank.py-%E2%89%A42s%20on%20100K-blue)](#commands)
+
 Deterministic CPU-only candidate ranker for the Redrob "Intelligent Candidate Discovery & Ranking" challenge.
 
 > Architecture: see `../problem.md §3 Solution A v2` (LOCKED).
 > Build playbook: see `../lld.md §2` (5-phase plan, CP-1 → CP-S3).
 > Submission gates: see `../hld.md`.
+
+## 30-second demo
+
+After the one-time offline build (Phase 3, ~60 min on M4 CPU) is cached,
+the online ranking loop is **~2 s wall** on the full 100K. Four-command
+cold-clone walkthrough:
+
+```bash
+git clone https://github.com/dhruv-sanan/redrob-ranker.git && cd redrob-ranker
+python -m venv .venv && source .venv/bin/activate && pip install -r requirements-dev.txt
+python tools/vendor_model.py                          # ~30 s — vendors BGE-small
+python build_features.py --candidates <candidates.jsonl> --out ./artifacts/   # ~60 min cold
+python rank.py --artifacts ./artifacts/ --out top_100_submission.csv          # ~2 s
+python validate_submission.py top_100_submission.csv  # ships from challenge bundle
+```
+
+Repeat the last two lines after any weight / threshold tweak — Phase 4 is
+the iteration loop. Full detail in the sections below.
 
 ## Environment
 
@@ -65,9 +88,10 @@ python validate_submission.py top_100_submission.csv
 
 - **Phase 1 (CP-1):** ✅ Skeleton + data + manifest layer.
 - **Phase 2 (CP-2):** ✅ 9 feature builders + 6 config YAMLs + pipeline.
-- **Phase 3 (CP-3):** ✅ BGE-small vendored + 100K embeddings + manifest.
-- **Phase 4 (CP-4):** ✅ `rank.py` (1.96 s wall on 100K), scoring, ranking, reasoning, audit. `validate_submission.py` clean.
-- **Phase 5 (CP-5a..d):** ⏳ Holdout, ablations, sandbox, deck.
+- **Phase 3 (CP-3, CP-3.5):** ✅ BGE-small vendored + 100K embeddings + manifest; encoder perf patch.
+- **Phase 4 (CP-4):** ✅ `rank.py` (~2 s wall on 100K), scoring, ranking, reasoning, audit. `validate_submission.py` clean.
+- **Phase 5 (CP-5a..d):** ✅ Stratified holdout + ablations + HF sandbox + submission deck.
+- **Submission (CP-S1..S3, CP-2.3..S2b):** ✅ V8 weights, 11/11 HLD blocking checks PASS, 13/13 holdout assertions PASS, 292 pytest pass, ruff clean, CI on GitHub Actions. See `final.md` for the punchlist and `bias_audit.md` for the top-100 fairness sweep.
 
 See `progress.md` for the checkpoint log and `completed.md` for the
 session-resume offload.
