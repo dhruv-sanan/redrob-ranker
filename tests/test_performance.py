@@ -9,6 +9,7 @@ artifacts are absent (cold clone before ``build_features.py``).
 
 from __future__ import annotations
 
+import resource
 import subprocess
 import sys
 import time
@@ -23,6 +24,22 @@ ARTIFACTS = REPO_ROOT / "artifacts"
 # catches drift early without flaking on slower CI hardware. Hard cap from
 # hld.md §3.5 check #2 is 300 s.
 WALL_BUDGET_S = 10.0
+
+# Peak RSS on the V8 floor is ~1.8 GB (CP-5b runtime_report). 4 GB cap is a
+# 2x margin — catches a future regression that allocates an unintended
+# 100K × 384-d float32 view (~150 MB) plus other slack without flaking on
+# CI containers. Allocation budget is well below the Stage-3 5 GB cap.
+RSS_BUDGET_GB = 4.0
+
+
+def _maxrss_bytes() -> int:
+    """Return current ru_maxrss for child processes in bytes.
+
+    macOS reports ru_maxrss in bytes; Linux reports kibibytes
+    (per getrusage(2)). Normalize so the test asserts in real GB.
+    """
+    raw = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+    return raw if sys.platform == "darwin" else raw * 1024
 
 
 def _artifacts_present() -> bool:
@@ -87,3 +104,21 @@ def test_rank_py_deterministic(tmp_path: Path) -> None:
     assert (
         a_debug.read_bytes() == b_debug.read_bytes()
     ), "rank.py debug CSV not deterministic across runs"
+
+
+@pytest.mark.skipif(not _artifacts_present(), reason="100K artifacts not present")
+def test_rank_py_rss_under_4gb(tmp_path: Path) -> None:
+    """Cap peak resident memory of rank.py subprocess at 4 GB.
+
+    Reads ``ru_maxrss`` for ``RUSAGE_CHILDREN`` after the subprocess has
+    been reaped. ``ru_maxrss`` is a high-water mark across all reaped
+    children in this pytest process — earlier rank.py subprocesses in the
+    same session inflate it to the same peak, so the assertion remains
+    correct under any test order.
+    """
+    _run_rank(tmp_path, "_rss")
+    rss_bytes = _maxrss_bytes()
+    rss_gb = rss_bytes / (1024**3)
+    assert (
+        rss_gb < RSS_BUDGET_GB
+    ), f"rank.py peak RSS {rss_gb:.2f} GB exceeds {RSS_BUDGET_GB:.1f} GB budget"
