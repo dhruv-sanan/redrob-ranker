@@ -2,7 +2,7 @@
 
 > Append-only. Onboard a fresh session by reading this top-to-bottom; no need
 > to re-read `problem.md` / `lld.md` / `hld.md` unless changing architecture.
-> Last updated: 2026-06-28.
+> Last updated: 2026-06-28 (post-CP-4).
 
 ---
 
@@ -18,9 +18,19 @@
 - **REFERENCE_DATE = 2026-06-01.** Only `src/reference_date.py` constructs it.
   All other files anchor to it. Stage-3 Docker reproduction is date-stable
   regardless of when the reviewer runs the sandbox.
-- **`rank.py` import allow-list** (enforced via static check in CP-4):
-  `{numpy, pandas, pyarrow, json, sys, pathlib, yaml}`. Anything else = bug.
-  `sentence-transformers` is offline-only and never imported by `rank.py`.
+- **`rank.py` import allow-list** (enforced via static AST check in
+  `tests/test_rank_imports.py` + runtime sys.modules guard inside
+  `rank.py` itself): `{numpy, pandas, pyarrow, json, sys, pathlib, yaml}`
+  plus project-internal `src.*`. Anything else = bug. `sentence-transformers`,
+  `torch`, `transformers`, `requests`, `httpx`, `openai`, `anthropic`,
+  `cohere`, `google.generativeai` are explicitly forbidden.
+- **Submission CSV invariant** (`rank.py` enforces): label `score` column
+  is strictly non-increasing across ranks 1→100 (epsilon=1e-7). The raw
+  `final_score` lives in `top_100_audit.csv` / `top_300_debug.csv` for
+  inspection / ablation.
+- **Last CP shipped: CP-4** (`1221a8c`). Pipeline is end-to-end green on
+  100K — `rank.py` finishes in **1.96 s** on M4 (target 60 s, hard cap
+  300 s). `validate_submission.py` and `reasoning_audit.py` both pass.
 
 ---
 
@@ -409,7 +419,7 @@ reasoning_audit: PASS 100 rows; wrote reasoning_audit.csv
 - Reasoning snippets sometimes truncate mid-word with an ellipsis
   (`BM25-o…`). Not a blocker; clean up in CP-5 polish if time permits.
 
-## Cumulative repo layout (after CP-3 commit lands)
+## Cumulative repo layout (post-CP-4)
 
 ```
 redrob-ranker/
@@ -419,58 +429,77 @@ redrob-ranker/
 ├── pyproject.toml              # ruff/pytest config, python = ">=3.11,<3.12"
 ├── requirements.txt            # production runtime
 ├── requirements-dev.txt        # + pytest + ruff
-├── build_features.py           # ENTRY (offline, ≤10 min on 100K)
+├── build_features.py           # ENTRY (offline, ~60 min CPU on 100K)
+├── rank.py                     # ENTRY (online, restricted imports, ~2 s on 100K)
+├── reasoning_audit.py          # ENTRY (independent post-rank audit)
 ├── config/
 │   ├── aliases.yaml
 │   ├── anti_patterns.yaml
 │   ├── jd_intents.yaml
 │   ├── regex_channels.yaml
+│   ├── skeletons.yaml           # NEW in CP-4 — reasoning templates × 4 bands
 │   ├── thresholds.yaml
-│   └── weights.yaml
+│   └── weights.yaml             # 8-term linear blend + capped factors
 ├── src/
 │   ├── __init__.py
 │   ├── config_loader.py
-│   ├── embeddings.py            # BGE-small encoding
-│   ├── feature_pipeline.py      # row-builder + FEATURE_COLUMNS
+│   ├── embeddings.py            # BGE-small encoding (CP-3 / CP-3.5)
+│   ├── feature_pipeline.py      # row-builder + FEATURE_COLUMNS (27)
 │   ├── io_utils.py
 │   ├── manifest.py              # Manifest + verify_manifest + ArtifactError
 │   ├── parsing.py
+│   ├── ranking.py               # NEW in CP-4 — tier sort + top-10 gate
+│   ├── reasoning.py             # NEW in CP-4 — evidence ledger + skeletons
 │   ├── reference_date.py        # REFERENCE_DATE = date(2026, 6, 1)
+│   ├── scoring.py               # NEW in CP-4 — blend + ceilings
 │   └── features/
 │       ├── __init__.py
 │       ├── anti_patterns.py
 │       ├── behavioral.py
+│       ├── education.py         # NEW in CP-4
 │       ├── evidence_channels.py
+│       ├── experience_band.py   # NEW in CP-4
 │       ├── honeypot_ledger.py
 │       ├── must_haves.py
 │       ├── skill_trust.py
 │       ├── stuffer_risk.py
 │       ├── tiering.py
 │       └── title_career.py
-├── tests/
+├── tests/                       # 196 cases, all green
 │   ├── conftest.py              # synthetic_50 + by_id fixtures
 │   ├── test_anti_patterns.py
 │   ├── test_behavioral.py
-│   ├── test_embeddings.py       # NEW in CP-3
+│   ├── test_build_features_e2e.py
+│   ├── test_education.py        # NEW in CP-4
+│   ├── test_embeddings.py
+│   ├── test_end_to_end.py       # NEW in CP-4 — subprocess rank.py + validate
 │   ├── test_evidence_channels.py
+│   ├── test_experience_band.py  # NEW in CP-4
 │   ├── test_feature_pipeline.py
 │   ├── test_honeypot_ledger.py
 │   ├── test_manifest.py
 │   ├── test_must_haves.py
 │   ├── test_parsing.py
+│   ├── test_rank_imports.py     # NEW in CP-4 — AST allow-list + forbidden ban
+│   ├── test_ranking.py          # NEW in CP-4
+│   ├── test_reasoning.py        # NEW in CP-4
+│   ├── test_reasoning_audit.py  # NEW in CP-4
+│   ├── test_scoring.py          # NEW in CP-4
 │   ├── test_skill_trust.py
 │   ├── test_stuffer_risk.py
 │   ├── test_tiering.py
 │   └── test_title_career.py
 ├── tools/
-│   └── vendor_model.py          # NEW in CP-3
-└── artifacts/                   # gitignored except model/ (also gitignored)
-    ├── manifest.json            # ← only file kept; .npy/.parquet ignored
-    ├── candidates.parquet       # gitignored (large)
-    ├── features.parquet         # gitignored
-    ├── candidate_emb.npy        # gitignored
-    ├── jd_intent_vecs.npy       # gitignored
-    └── model/                   # gitignored, re-vendored per clone
+│   ├── rebuild_features_parquet.py  # NEW in CP-4 — regen features w/o re-encode
+│   └── vendor_model.py
+└── artifacts/                   # ENTIRE DIR gitignored (large + model + outputs)
+    ├── manifest.json            # current artifact metadata (verify_manifest target)
+    ├── candidates.parquet       # 14 MB; 100K nested raw records
+    ├── features.parquet         # 3.7 MB; 27-column feature matrix
+    ├── candidate_emb.npy        # 73 MB; (100000, 384) float16 unit-normed
+    ├── jd_intent_vecs.npy       # 6 KB; (8, 384) float16
+    ├── build_features_summary.json  # human-readable tier histogram + sizes
+    └── model/                   # vendored BGE-small (~135 MB); re-vendored per clone
 ```
 
 ---
@@ -487,32 +516,90 @@ redrob-ranker/
 
 ---
 
-## What's left (post-CP-3)
+## What's left (post-CP-4)
 
 | CP | Scope | ETA |
 |---|---|---|
-| **CP-4** | `src/scoring.py` (capped contributions + linear blend), `src/ranking.py` (tier sort + top-10 promotion gate + relaxation rule), `src/reasoning.py` (evidence ledger + ~20 skeletons), `rank.py` (entry point with **import allow-list static check**), `reasoning_audit.py`. End-to-end test through `validate_submission.py`. | ~3 hr |
-| **CP-5a** | Hand-label `holdout_labels.csv` across 9 stratified buckets; `holdout_report.md` bucket assertions. | ~1.5 hr |
-| **CP-5b** | `ablations.py` (A0–A5 variants); `ablation_report.md`; `runtime_report.md`. | ~1 hr |
-| **CP-5c** | HuggingFace Space (or Docker fallback) live, ≤ 5 min on free tier. | ~1.5 hr |
+| **CP-5a** | Hand-label `holdout_labels.csv` across 9 stratified buckets; `holdout_report.md` bucket assertions (see `problem.md §5` + `hld.md` blocking check #10). Source candidates from current `top_300_debug.csv` for the Plain-Language / Stuffer / Honeypot / Irrelevant / Services→Product / Strong-AI-but-Inactive / Outside-India / Strong-Recsys-Weak-Skill-List / CV-Speech-Expert-Weak-NLP buckets. | ~1.5 hr |
+| **CP-5b** | `ablations.py` (A0 full, A1 no-embedding, A2 no-skills-in-doc, A3 no-behavioral-mult, A4 no-anti-pattern-ceilings, A5 no-top-10-gate). Compute top-100 overlap delta vs A0. Write `ablation_report.md` + `runtime_report.md` (build wall, rank wall, RAM, disk, honeypot count, tier histogram). | ~1 hr |
+| **CP-5c** | HuggingFace Space (or Docker fallback) live, ≤ 5 min on free tier. Reuse `rank.py` directly; ship pre-computed artifacts. | ~1.5 hr |
 | **CP-5d** | 11-slide PPTX → PDF per `pptx.md`. | ~1.5 hr |
-| **CP-S1** | Floor submission. All 11 `hld.md` blocking checks pass. | day-3 evening |
+| **CP-S1** | Floor submission. All 11 `hld.md` blocking checks pass. Submission CSV = current `rank.py` output. | day-3 evening |
 | **CP-S2** | Tuned weights from holdout + ablation deltas + top-25 manual review. | day-4 evening |
 | **CP-S3** | Final, cold-clone-verified. | day-5 evening |
 
+### Open polish items (CP-5 backlog, not blocking)
+- `honeypot_drop = 348` is above the 80–150 calibration target — tighten
+  ledger thresholds in `config/thresholds.yaml` once we see which real
+  candidates the audit set agrees are honeypots.
+- Snippet truncation in reasoning ends mid-word with `…` (e.g.
+  `BM25-o…`). Cosmetic. Fix in `_truncate()` to cut at last whitespace.
+- Synthetic data shares role descriptions across some candidates → some
+  near-duplicate reasonings. Audit still passes (grounded). Consider
+  per-candidate variation (e.g. role-index instead of longest) only if
+  Stage-4 reviewers flag uniformity.
+- `rank_50` ceilings clip 41,093 of 99,652 survivors (~41%). Bound is
+  binding; verify on holdout that real fits are not getting clipped.
+
 ---
 
-## Resuming from a fresh session
+## Resuming from a fresh session (cold-start runbook)
 
-1. `cd /Users/dhruvsanan/Desktop/India_runs/redrob-ranker`
-2. `source .venv/bin/activate` (Python 3.11.15 inside).
-3. `git log --oneline | head -3` to confirm latest commit.
-4. Read this file + the latest entry in `progress.md`.
-5. Check `git status` — should be clean unless CP-3 commit not yet made.
-6. If model dir absent (`ls artifacts/model/`): `python tools/vendor_model.py`.
-7. `pytest -q` — should be green at the latest CP boundary.
-8. Open the next-CP section in `lld.md §2` and follow its checklist.
+```bash
+cd /Users/dhruvsanan/Desktop/India_runs/redrob-ranker
+source .venv/bin/activate                         # Python 3.11.15
+git log --oneline | head -6                       # confirm last commit
+# Expected head: b90324c docs(completed): back-fill CP-4 commit hash 1221a8c
+git status                                        # should be clean
+ls artifacts/                                     # all 6 artifacts + model/
+pytest -q                                         # 196 passed
+python rank.py --artifacts ./artifacts/ \
+              --out top_100_submission.csv \
+              --audit top_100_audit.csv \
+              --debug top_300_debug.csv          # ~2 s
+python "/Users/dhruvsanan/Desktop/India_runs/[PUB] India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/validate_submission.py" top_100_submission.csv
+python reasoning_audit.py --audit top_100_audit.csv --candidates artifacts/candidates.parquet --out reasoning_audit.csv
+```
 
-Do **not** re-derive architecture decisions from `problem.md`. They are locked.
-Read `problem.md` §3 v2 only if a *new* design question arises that isn't
-already settled.
+If `artifacts/model/` missing on a fresh clone: `python tools/vendor_model.py`.
+If `artifacts/*.npy` / `*.parquet` missing: re-run `build_features.py` (~60 min
+on M4 CPU; one cup of coffee). The CP-3.5 patch already tunes for that.
+
+### What to feed the next agent
+
+Paste this verbatim:
+
+> Read `redrob-ranker/completed.md` end-to-end, then `progress.md`, then
+> the latest commit message (`git log -1`). All architecture is LOCKED in
+> `../problem.md §3 Solution A v2` and the build playbook in `../lld.md`.
+> Do **not** re-debate architecture; do **not** re-read those two unless a
+> *new* design question arises.
+>
+> Repo state: CP-1, CP-2, CP-3, CP-3.5, CP-4 are all committed and green
+> (196 pytest, ruff clean, `rank.py` 1.96 s wall on 100K,
+> `validate_submission.py` clean, `reasoning_audit.py` PASS). Next is
+> **CP-5a**: hand-label a 100-row stratified holdout (9 buckets, ~11 each)
+> drawn from the current `top_300_debug.csv` + the bottom of the global
+> ordered list. Bucket definitions and required passes are in
+> `problem.md §5` and `hld.md` blocking check #10.
+>
+> Stop after every CP commit, summarize, ask me to continue before the
+> next CP. Quality gates before EVERY commit: `pytest -q` green and
+> `ruff check src tests tools rank.py reasoning_audit.py build_features.py`
+> clean.
+>
+> Hard invariants (non-negotiable):
+> - `REFERENCE_DATE = 2026-06-01` lives only in `src/reference_date.py`.
+> - `rank.py` import allow-list: `{numpy, pandas, pyarrow, json, sys,
+>   pathlib, yaml}` + `src.*`. `argparse` intentionally NOT included
+>   (sys.argv parsed by hand). Static AST test in
+>   `tests/test_rank_imports.py` enforces this.
+> - No hosted LLM, no network, no GPU in `rank.py` (runtime sys.modules
+>   guard inside rank.py + AST test).
+> - BGE-small vendored under `artifacts/model/` — load only via
+>   `src.embeddings.load_model` from `build_features.py`.
+> - No LTR / LambdaMART training. No FAISS / vector DB.
+
+Do **not** re-derive architecture decisions from `problem.md`. They are
+locked. Read `problem.md §3 v2` only if a *new* design question arises
+that isn't already settled in this offload doc.
