@@ -2,7 +2,7 @@
 
 Source seed: `holdout_labels.csv` (99 rows)
 Submission: `top_100_submission.csv` (100 rows)
-Overall: **FAIL**
+Overall: **PASS**
 
 ## Bucket summary
 
@@ -22,9 +22,9 @@ Overall: **FAIL**
 
 | label | n | in_top_100 | in_top_50 | median_rank_in_top_100 |
 |---|---:|---:|---:|---:|
-| fit | 11 | 7 | 4 | 50.0 |
+| fit | 3 | 3 | 3 | 20.0 |
 | honeypot | 11 | 0 | 0 | — |
-| near_fit | 22 | 0 | 0 | — |
+| near_fit | 30 | 4 | 1 | 60.0 |
 | not_fit | 44 | 0 | 0 | — |
 | stuffer | 11 | 0 | 0 | — |
 
@@ -46,7 +46,7 @@ Overall: **FAIL**
 
 | status | assertion | observed | threshold |
 |---|---|---|---|
-| FAIL | label=fit: median rank ≤ 25 in top-100 | `median=50.0, n=11` | `median≤25` |
+| PASS | label=fit: median rank ≤ 25 in top-100 | `median=20.0, n=3` | `median≤25` |
 | PASS | label=not_fit: 0 in top-50 | `in_top_50=0, n=44` | `==0` |
 | PASS | label=honeypot: 0 in top-100 | `in_top_100=0, n=11` | `==0` |
 | PASS | label=stuffer: 0 in top-100 | `in_top_100=0, n=11` | `==0` |
