@@ -1,100 +1,100 @@
 candidate_id,bucket,predicate_evidence,current_tier,current_ceiling,current_rank,expected_band,true_label,notes
-CAND_0009024,plain_language,tier=C retrieval=0.73 stuffer=0.00 honey=0.25 prod_retrieval=0.70,C,none,,rank<=50,,
-CAND_0009691,plain_language,tier=C retrieval=0.73 stuffer=0.00 honey=0.00 prod_retrieval=0.90,C,none,,rank<=50,,
-CAND_0020708,plain_language,tier=A retrieval=0.70 stuffer=0.00 honey=0.25 prod_retrieval=0.90,A,none,52,rank<=50,,
-CAND_0042506,plain_language,tier=A retrieval=0.77 stuffer=0.00 honey=0.25 prod_retrieval=0.90,A,none,7,rank<=50,,
-CAND_0044222,plain_language,tier=A retrieval=0.61 stuffer=0.00 honey=0.00 prod_retrieval=1.00,A,none,74,rank<=50,,
-CAND_0052682,plain_language,tier=A retrieval=0.75 stuffer=0.00 honey=0.00 prod_retrieval=0.90,A,none,69,rank<=50,,
-CAND_0061265,plain_language,tier=C retrieval=0.40 stuffer=0.00 honey=0.25 prod_retrieval=1.00,C,none,,rank<=50,,
-CAND_0069905,plain_language,tier=A retrieval=0.73 stuffer=0.00 honey=0.25 prod_retrieval=1.00,A,none,19,rank<=50,,
-CAND_0074225,plain_language,tier=A retrieval=0.48 stuffer=0.00 honey=0.25 prod_retrieval=0.80,A,none,24,rank<=50,,
-CAND_0080766,plain_language,tier=A retrieval=0.32 stuffer=0.00 honey=0.00 prod_retrieval=1.00,A,none,53,rank<=50,,
-CAND_0095528,plain_language,tier=C retrieval=0.50 stuffer=0.00 honey=0.25 prod_retrieval=0.50,C,none,,rank<=50,,
-CAND_0018345,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.00 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0022671,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0036415,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0039465,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.25 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0044083,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.00 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0044821,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.30 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0054781,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.25 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0064492,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0077394,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.25 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0082216,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.30 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0092600,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,,
-CAND_0005914,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0018330,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.85 honeypot_drop=True,E,none,,dropped (no_rank),,
-CAND_0034222,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0035477,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0041221,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0064215,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.85 honeypot_drop=True,E,none,,dropped (no_rank),,
-CAND_0064801,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0072658,honeypot_drop,tier=E retrieval=0.00 stuffer=1.00 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0074119,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.95 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0086087,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0096150,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.95 honeypot_drop=True,E,rank_50,,dropped (no_rank),,
-CAND_0007430,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,,
-CAND_0012666,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,,
-CAND_0018729,honeypot_audit,tier=C retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,C,none,,rank>50 OR not_in_top_100,,
-CAND_0031671,honeypot_audit,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,,
-CAND_0036397,honeypot_audit,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 honeypot_audit=True drop=False,E,rank_50,,rank>50 OR not_in_top_100,,
-CAND_0040545,honeypot_audit,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,,
-CAND_0045820,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,,
-CAND_0046420,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,,
-CAND_0079240,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,,
-CAND_0090461,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,,
-CAND_0096728,honeypot_audit,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 honeypot_audit=True drop=False,E,rank_50,,rank>50 OR not_in_top_100,,
-CAND_0009833,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,,
-CAND_0031458,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,,
-CAND_0038890,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.30 (deep-tail D-tier),D,rank_50,,not_in_top_100,,
-CAND_0043624,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,,
-CAND_0063067,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,,
-CAND_0070151,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,,
-CAND_0076845,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 (deep-tail D-tier),D,rank_50,,not_in_top_100,,
-CAND_0080522,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,,
-CAND_0083262,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 (deep-tail D-tier),D,rank_50,,not_in_top_100,,
-CAND_0084232,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 (deep-tail D-tier),D,rank_50,,not_in_top_100,,
-CAND_0089836,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,,
-CAND_0028541,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0045931,services_only,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0047084,services_only,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 archetype=services_only,E,rank_50,,rank>50 (ceiling),,
-CAND_0050266,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0055321,services_only,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0056518,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0066456,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0070477,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0077905,services_only,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0077978,services_only,tier=C retrieval=0.00 stuffer=0.30 honey=0.25 archetype=services_only,C,rank_50,,rank>50 (ceiling),,
-CAND_0078554,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),,
-CAND_0007980,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0009117,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0030373,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0055397,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0055969,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 services_history + not services_only archetype,D,rank_50,,no_ceiling — may rank top-100 if strong,,
-CAND_0056571,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 services_history + not services_only archetype,D,rank_50,,no_ceiling — may rank top-100 if strong,,
-CAND_0057471,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0060296,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 services_history + not services_only archetype,D,rank_50,,no_ceiling — may rank top-100 if strong,,
-CAND_0063396,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0076239,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0079322,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,,
-CAND_0005915,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0012756,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0023496,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0028359,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0029563,outside_india,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 country!=India,E,rank_50,,informational (no country penalty),,
-CAND_0043454,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0055893,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0066557,outside_india,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 country!=India,D,rank_50,,informational (no country penalty),,
-CAND_0082434,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0085699,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),,
-CAND_0091879,outside_india,tier=E retrieval=0.00 stuffer=0.70 honey=0.30 country!=India,E,rank_50,,informational (no country penalty),,
-CAND_0002372,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0009139,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0010813,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.30 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0016103,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0033420,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0046140,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0069850,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0071906,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0072384,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0077345,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
-CAND_0090267,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),,
+CAND_0009024,plain_language,tier=C retrieval=0.73 stuffer=0.00 honey=0.25 prod_retrieval=0.70,C,none,,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0009691,plain_language,tier=C retrieval=0.73 stuffer=0.00 honey=0.00 prod_retrieval=0.90,C,none,,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0020708,plain_language,tier=A retrieval=0.70 stuffer=0.00 honey=0.25 prod_retrieval=0.90,A,none,52.0,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0042506,plain_language,tier=A retrieval=0.77 stuffer=0.00 honey=0.25 prod_retrieval=0.90,A,none,7.0,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0044222,plain_language,tier=A retrieval=0.61 stuffer=0.00 honey=0.00 prod_retrieval=1.00,A,none,74.0,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0052682,plain_language,tier=A retrieval=0.75 stuffer=0.00 honey=0.00 prod_retrieval=0.90,A,none,69.0,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0061265,plain_language,tier=C retrieval=0.40 stuffer=0.00 honey=0.25 prod_retrieval=1.00,C,none,,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0069905,plain_language,tier=A retrieval=0.73 stuffer=0.00 honey=0.25 prod_retrieval=1.00,A,none,19.0,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0074225,plain_language,tier=A retrieval=0.48 stuffer=0.00 honey=0.25 prod_retrieval=0.80,A,none,24.0,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0080766,plain_language,tier=A retrieval=0.32 stuffer=0.00 honey=0.00 prod_retrieval=1.00,A,none,53.0,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0095528,plain_language,tier=C retrieval=0.50 stuffer=0.00 honey=0.25 prod_retrieval=0.50,C,none,,rank<=50,fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0018345,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.00 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0022671,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0036415,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0039465,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.25 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0044083,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.00 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0044821,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.30 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0054781,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.25 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0064492,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0077394,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.25 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0082216,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.30 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0092600,stuffer,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 (high stuffer + low retrieval),E,rank_50,,rank>100 OR not_in_top_100,stuffer,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0005914,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0018330,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.85 honeypot_drop=True,E,none,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0034222,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0035477,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0041221,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0064215,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.85 honeypot_drop=True,E,none,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0064801,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0072658,honeypot_drop,tier=E retrieval=0.00 stuffer=1.00 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0074119,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.95 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0086087,honeypot_drop,tier=E retrieval=0.00 stuffer=0.70 honey=0.85 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0096150,honeypot_drop,tier=E retrieval=0.00 stuffer=0.50 honey=0.95 honeypot_drop=True,E,rank_50,,dropped (no_rank),honeypot,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0007430,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0012666,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0018729,honeypot_audit,tier=C retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,C,none,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0031671,honeypot_audit,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0036397,honeypot_audit,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 honeypot_audit=True drop=False,E,rank_50,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0040545,honeypot_audit,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0045820,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0046420,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0079240,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,none,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0090461,honeypot_audit,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 honeypot_audit=True drop=False,D,rank_50,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0096728,honeypot_audit,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 honeypot_audit=True drop=False,E,rank_50,,rank>50 OR not_in_top_100,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0009833,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0031458,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0038890,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.30 (deep-tail D-tier),D,rank_50,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0043624,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0063067,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0070151,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0076845,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 (deep-tail D-tier),D,rank_50,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0080522,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0083262,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 (deep-tail D-tier),D,rank_50,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0084232,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 (deep-tail D-tier),D,rank_50,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0089836,irrelevant_tail,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 (deep-tail D-tier),D,none,,not_in_top_100,not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0028541,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.55 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0045931,services_only,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0047084,services_only,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 archetype=services_only,E,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0050266,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0055321,services_only,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0056518,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0066456,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0070477,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0077905,services_only,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0077978,services_only,tier=C retrieval=0.00 stuffer=0.30 honey=0.25 archetype=services_only,C,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0078554,services_only,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 archetype=services_only,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0007980,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0009117,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0030373,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0055397,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0055969,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 services_history + not services_only archetype,D,rank_50,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0056571,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 services_history + not services_only archetype,D,rank_50,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0057471,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.00 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0060296,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 services_history + not services_only archetype,D,rank_50,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0063396,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0076239,services_to_product,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0079322,services_to_product,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 services_history + not services_only archetype,D,none,,no_ceiling — may rank top-100 if strong,near_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0005915,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0012756,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0023496,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0028359,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0029563,outside_india,tier=E retrieval=0.00 stuffer=0.70 honey=0.55 country!=India,E,rank_50,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0043454,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0055893,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0066557,outside_india,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 country!=India,D,rank_50,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0082434,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0085699,outside_india,tier=D retrieval=0.00 stuffer=0.30 honey=0.25 country!=India,D,none,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0091879,outside_india,tier=E retrieval=0.00 stuffer=0.70 honey=0.30 country!=India,E,rank_50,,informational (no country penalty),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0002372,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0009139,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.55 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0010813,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.30 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0016103,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0033420,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0046140,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0069850,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0071906,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0072384,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0077345,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.00 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
+CAND_0090267,non_tech_title,tier=D retrieval=0.00 stuffer=0.50 honey=0.25 archetype=non_tech_title,D,rank_50,,rank>50 (ceiling),not_fit,proxy-labeled by bucket rule (CP-2.7-followup)
