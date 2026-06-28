@@ -97,9 +97,7 @@ def main(argv: list[str] | None = None) -> int:
         default=DEFAULT_MODEL_NAME,
         help="HuggingFace model id (only used if model-dir is empty and we must vendor)",
     )
-    p.add_argument(
-        "--batch-size", type=int, default=512, help="Encoder batch size (default: 512)"
-    )
+    p.add_argument("--batch-size", type=int, default=512, help="Encoder batch size (default: 512)")
     p.add_argument(
         "--no-progress",
         action="store_true",
@@ -219,9 +217,7 @@ def main(argv: list[str] | None = None) -> int:
         "anti_pattern_archetype_counts": {
             k: int(v) for k, v in df["anti_pattern_ceiling"].value_counts().to_dict().items()
         },
-        "artifacts_total_bytes": sum(
-            p.stat().st_size for p in out.rglob("*") if p.is_file()
-        ),
+        "artifacts_total_bytes": sum(p.stat().st_size for p in out.rglob("*") if p.is_file()),
     }
     (out / "build_features_summary.json").write_text(
         json.dumps(summary, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8"

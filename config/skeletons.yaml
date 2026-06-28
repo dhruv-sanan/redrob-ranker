@@ -1,0 +1,32 @@
+# Reasoning skeletons partitioned by rank band.
+# Variables: {positive}, {skill}, {logistics}, {concern}, {employer}, {tier},
+# {must_haves}, {exception}. Missing variables expand to empty when the
+# evidence ledger reports None for that fact.
+
+top10:
+  - "Production retrieval ownership: {positive}. Backed by {skill}. {logistics}. {concern}"
+  - "Direct fit — {positive}. Skill depth from {skill}. {logistics}. {concern}"
+  - "Shipped recsys at {employer}: {positive}. {skill}. {logistics}. {concern}"
+  - "Senior IC profile — {positive}. {skill} + {must_haves}. {logistics}. {concern}"
+  - "Tier-A: {positive}. Validated by {skill}. {logistics}. {concern}"
+
+top25:
+  - "Strong must-have evidence: {positive}. {skill}. {logistics}. {concern}"
+  - "Adjacent senior fit — {positive}. {skill}. {logistics}. {concern}"
+  - "{employer} role aligns: {positive}. {skill}. {logistics}. {concern}"
+  - "Solid retrieval/ranking depth — {positive}. {skill}. {logistics}. {concern}"
+  - "Production ML at {employer}: {positive}. {skill}. {logistics}. {concern}"
+
+top50:
+  - "Adjacent ML/data — {positive}. Limited explicit retrieval proof. {skill}. {logistics}. {concern}"
+  - "Backend/data background; {positive}. {skill}. However, {concern}. {logistics}"
+  - "Strong fundamentals — {positive}. Missing direct ranking-eval evidence. {logistics}. {concern}"
+  - "Adjacent to JD intent: {positive}. {skill}. {logistics}. {concern}"
+  - "Closely related work at {employer}: {positive}. Gap on {must_haves}. {logistics}. {concern}"
+
+top100:
+  - "Stretch fit — {positive}. Gaps: {concern}. {logistics}"
+  - "Partial match: {positive}. {skill}. However, {concern}. {logistics}"
+  - "{exception} — {positive}. {concern}. {logistics}"
+  - "Skills-list-only signal: {skill}. {concern}. {logistics}"
+  - "Outside the strict band — {positive}. {concern}. {logistics}"

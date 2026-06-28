@@ -66,7 +66,8 @@ python validate_submission.py top_100_submission.csv
 - **Phase 1 (CP-1):** ✅ Skeleton + data + manifest layer.
 - **Phase 2 (CP-2):** ✅ 9 feature builders + 6 config YAMLs + pipeline.
 - **Phase 3 (CP-3):** ✅ BGE-small vendored + 100K embeddings + manifest.
-- **Phase 4 (CP-4):** ⏳ `rank.py`, scoring, ranking, reasoning skeletons.
+- **Phase 4 (CP-4):** ✅ `rank.py` (1.96 s wall on 100K), scoring, ranking, reasoning, audit. `validate_submission.py` clean.
+- **Phase 5 (CP-5a..d):** ⏳ Holdout, ablations, sandbox, deck.
 
 See `progress.md` for the checkpoint log and `completed.md` for the
 session-resume offload.

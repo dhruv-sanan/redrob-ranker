@@ -24,7 +24,9 @@ from src.features.behavioral import (
     logistics_signal,
     market_interest_signal,
 )
+from src.features.education import education_signal
 from src.features.evidence_channels import retrieval_evidence
+from src.features.experience_band import experience_band_fit
 from src.features.honeypot_ledger import honeypot_risk
 from src.features.must_haves import compute_must_haves
 from src.features.skill_trust import skill_depth_trust
@@ -39,6 +41,7 @@ def build_feature_row(candidate: dict[str, Any], reference: date) -> dict[str, A
     skills = candidate.get("skills", []) or []
     signals = candidate.get("redrob_signals", {}) or {}
     scores = signals.get("skill_assessment_scores", {}) or {}
+    education = candidate.get("education", []) or []
 
     retr_ev = retrieval_evidence(career, reference)
     must_h = compute_must_haves(candidate)
@@ -57,6 +60,8 @@ def build_feature_row(candidate: dict[str, Any], reference: date) -> dict[str, A
         has_product_company_applied_ml_context=must_h["has_product_company_applied_ml_context"],
         reference=reference,
     )
+    exp_band = experience_band_fit(profile)
+    edu = education_signal(education)
     tier = assign_tier(profile, must_h, stuff, honeypot["drop"])
 
     row: dict[str, Any] = {
@@ -64,6 +69,8 @@ def build_feature_row(candidate: dict[str, Any], reference: date) -> dict[str, A
         "retrieval_evidence": retr_ev,
         "title_career_fit": tc_fit,
         "skill_depth_trust": skill_d,
+        "experience_band_fit": exp_band,
+        "education_signal": edu,
         "availability_signal": avail,
         "contactability_signal": contact,
         "market_interest_signal": market,
@@ -93,6 +100,8 @@ FEATURE_COLUMNS: tuple[str, ...] = (
     "retrieval_evidence",
     "title_career_fit",
     "skill_depth_trust",
+    "experience_band_fit",
+    "education_signal",
     "has_production_retrieval_evidence",
     "has_vector_or_hybrid_search_evidence",
     "has_python_backend_depth",

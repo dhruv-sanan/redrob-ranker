@@ -311,6 +311,104 @@ CP-3's 100K encode took 64 min wall on M4 — predicted 5-8. Root cause:
   truncating richer descriptions could hurt the JD's "plain-language fit"
   signal (`evidence_channels` Y-channel).
 
+## CP-4 — Online ranking + reasoning + audit ✅
+
+**Commit:** `<TBD-pending-CP-4-commit>` (2026-06-28).
+**Files:** 21 added/modified, +~2,200 LOC.
+
+### Shipped
+- `src/features/experience_band.py` — Gaussian fit (μ=7, σ=2.2, clipped [0,1]).
+- `src/features/education.py` — max tier across education[]; unknown → 0.5.
+- Wired both into `feature_pipeline.py`; `FEATURE_COLUMNS` grows 25 → 27.
+  Old `features.parquet` regenerated with `tools/rebuild_features_parquet.py`
+  (no re-encode; 165s wall vs 60+ min if we'd re-run the full encoder).
+- `src/scoring.py` — capped factors, linear blend, multipliers + tiebreak,
+  anti-pattern score ceilings translated to score-space from current
+  distribution.
+- `src/ranking.py` — drop honeypots → tier sort → top-10 promotion gate
+  with progressive relaxation → fill remainder → strict-decreasing label
+  scores (sidesteps the validator's equal-score tie-break rule cleanly).
+- `src/reasoning.py` — evidence ledger per top-100 row (primary snippet,
+  highest-trust skill, logistics, concern, must-haves, non-tech exception
+  clause) + 20 skeletons across 4 rank bands + reuse cap of 12.
+- `config/skeletons.yaml` — 5 templates × 4 bands.
+- `rank.py` — restricted-imports entry. `parse_argv` rolled by hand (argparse
+  intentionally not on the allow-list). Runtime guard aborts if any of
+  `sentence_transformers / torch / transformers / requests / httpx / openai /
+  anthropic / cohere` is in `sys.modules` at start.
+- `reasoning_audit.py` — independent script. Curated brand allowlist
+  (Pinecone, FAISS, Weaviate, BGE, …) for grounded-claim check; template
+  reuse cap; rank-50+ concern-clause requirement; non-tech exception
+  clause; high-notice / low-response mention requirement when rank ≤ 50.
+- `tools/rebuild_features_parquet.py` — forward-useful helper: re-derives
+  `features.parquet` + manifest without touching the encoder.
+
+### Tests (8 new files, +58 cases → **196 total green**)
+- `test_scoring.py` — capped factors, embedding-similarity shape/clip,
+  must-have sum, blend smoke, ceiling clipping count, stuffer-can't-beat-
+  real-fit assertion.
+- `test_ranking.py` — drop, sort, gate, exception path, relaxation, fill,
+  strict-decreasing labels, small-pool starvation telemetry.
+- `test_reasoning.py` — rank band buckets, ledger population, concern
+  composition, non-tech exception clause, template reuse cap rotation,
+  rank-50+ concern guard, YAML round-trip.
+- `test_reasoning_audit.py` — pass path, missing-concern fail, template
+  over-cap fail, non-tech missing exception fail, high-notice unmentioned
+  fail, `run_audit` writes CSV.
+- `test_rank_imports.py` — AST-parsed import allow-list check, forbidden
+  module ban, runtime-guard presence, REFERENCE_DATE invariant
+  (no `datetime.now()` / `date.today()` in `rank.py`).
+- `test_end_to_end.py` — subprocess-isolated `rank.py` run against the
+  real 100K artifacts, `validate_submission.py` clean, audit pass.
+- `test_experience_band.py` / `test_education.py` — feature edge cases.
+
+### Gates at commit
+- `ruff check src tests tools rank.py reasoning_audit.py build_features.py` — clean.
+- `ruff format --check ...` — clean (52 files).
+- `pytest -q` — **196 passed** in ~8s.
+
+### Full 100K run (post-CP-4 — first real submission rehearsal)
+```
+$ python rank.py --artifacts ./artifacts/ --out top_100_submission.csv \
+                --audit top_100_audit.csv --debug top_300_debug.csv
+{
+  "rows_scored": 100000,
+  "rows_after_honeypot_drop": 99652,
+  "top_10_gate_pool_size": 275,
+  "top_10_relaxation_used": 2,
+  "ceilings": {
+    "score_at_rank_51": 0.6229,
+    "score_at_rank_101": 0.5613,
+    "rank_50_clipped_count": 41093,
+    "rank_100_clipped_count": 0
+  }
+}
+real 0m1.956s
+$ python validate_submission.py top_100_submission.csv
+Submission is valid.
+$ python reasoning_audit.py --audit top_100_audit.csv \
+                            --candidates artifacts/candidates.parquet \
+                            --out reasoning_audit.csv
+reasoning_audit: PASS 100 rows; wrote reasoning_audit.csv
+```
+
+### Observations for CP-5 tuning
+- 41,093 of 99,652 survivors (~41%) caught by a `rank_50` ceiling — the
+  bound is binding for a meaningful fraction. The 100th-rank score
+  (0.561) is just 6 points below the 50th (0.623), so the gate's
+  pressure on rank-band hygiene is mild but visible.
+- Top-10 promotion pool comfortably exceeds 10 at `min_must_have=2`
+  (275 eligible) → relaxation never fires on the real data.
+- Honeypot drops = 348 (CP-3 result; unchanged here). Above the 80-150
+  calibration target; tighten ledger thresholds in CP-5 if top-100 audit
+  results show false-positive drops.
+- Several rank-band-1 candidates share a common "Built a content
+  recommendation system serving 10M+ users…" description — the synthetic
+  dataset has reused role descriptions; reasoning copies the snippet
+  verbatim. Audit still passes (it's grounded in the candidate's record).
+- Reasoning snippets sometimes truncate mid-word with an ellipsis
+  (`BM25-o…`). Not a blocker; clean up in CP-5 polish if time permits.
+
 ## Cumulative repo layout (after CP-3 commit lands)
 
 ```
@@ -380,6 +478,7 @@ redrob-ranker/
 ## Commit history
 
 ```
+<TBD>    feat(ranking): full online rank.py + scoring + reasoning + audit (CP-4)
 9716c84  perf(embeddings): MPS auto-detect + thread tuning + parallel tokenizers (CP-3.5)
 79bc5d8  feat(embeddings): vendored BGE-small + full build_features pipeline (CP-3)
 7037ed9  feat(features): 9 feature builders + config + pipeline + build_features.py skeleton (CP-2)
