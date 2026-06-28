@@ -155,10 +155,15 @@ def _render_csv(df: pd.DataFrame) -> str:
     return buf.getvalue()
 
 
-def rank_from_inputs(
-    uploaded_file: Any, pasted_text: str, target_size: int
-) -> tuple[pd.DataFrame, str, str]:
-    """Gradio adapter — read upload or paste, return (preview_df, csv_path, status)."""
+def rank_from_inputs(uploaded_file, pasted_text, target_size):  # noqa: ANN001, ANN201
+    """Gradio adapter — read upload or paste, return (preview_df, csv_path, status).
+
+    Type annotations intentionally omitted: Gradio 4.x introspects the
+    function signature to generate API schema, and ``typing.Any`` /
+    ``pd.DataFrame`` produce a schema with ``additionalProperties: True``
+    (boolean) that crashes ``gradio_client.utils.get_type`` until
+    gradio 5.0. See requirements-app.txt pin commentary.
+    """
     t0 = time.perf_counter()
     try:
         if uploaded_file is not None:
@@ -223,6 +228,7 @@ def build_ui() -> gr.Blocks:
             fn=rank_from_inputs,
             inputs=[upload, paste, target],
             outputs=[table, download, status],
+            api_name=False,  # skip API schema introspection — bypasses gradio_client.utils 4.x crash
         )
         gr.Markdown(
             "_Architecture: scoring + ranking match `rank.py` on the full 100K. "
@@ -234,7 +240,7 @@ def build_ui() -> gr.Blocks:
 
 def main() -> None:
     demo = build_ui()
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False, show_api=False)
 
 
 if __name__ == "__main__":
