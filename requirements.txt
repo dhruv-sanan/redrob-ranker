@@ -1,6 +1,8 @@
 # Production runtime deps. rank.py import allow-list = {numpy, pandas, pyarrow, json, sys, pathlib, yaml}.
-# Phase 3 adds sentence-transformers (offline-only, used by build_features.py — never imported by rank.py).
+# sentence-transformers is offline-only — imported by build_features.py and tools/vendor_model.py;
+# rank.py NEVER imports it (enforced by static import check in Phase 4).
 numpy>=1.26,<2.0
 pandas>=2.2,<2.3
 pyarrow>=15.0,<16.0
 PyYAML>=6.0,<7.0
+sentence-transformers>=2.7,<3.0

@@ -120,7 +120,10 @@ def _verify_features_parquet(manifest: Manifest, artifacts_dir: Path) -> None:
             f"features.parquet row count mismatch: "
             f"manifest={manifest.parquet_rows} actual={pf.metadata.num_rows}"
         )
-    schema_names = set(pf.schema.names)
+    # `schema_arrow.names` gives logical column names (incl. list/struct columns
+    # as a single name). `schema.names` returns physical parquet names which
+    # flattens nested fields and reports inner `element` placeholders.
+    schema_names = set(pf.schema_arrow.names)
     missing = set(manifest.parquet_required_columns) - schema_names
     if missing:
         raise ArtifactError(f"features.parquet missing required columns: {sorted(missing)}")
