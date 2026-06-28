@@ -30,6 +30,7 @@ from typing import Any
 import gradio as gr
 import numpy as np
 import pandas as pd
+import starlette.templating as _st
 import yaml
 
 from src.embeddings import candidate_docs, encode_strings, load_model
@@ -42,6 +43,20 @@ from src.ranking import (
 from src.reasoning import load_skeletons_from_yaml, render_top_100_reasoning
 from src.reference_date import REFERENCE_DATE
 from src.scoring import compute_scores
+
+# Starlette 1.x removed TemplateResponse(name, context) backwards-compat; gradio 4.x
+# calls that form internally. Restore the shim here before any HTTP requests are served.
+_orig_tr = _st.Jinja2Templates.TemplateResponse
+
+
+def _compat_tr(self, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN201
+    if args and isinstance(args[0], str):
+        name, context = args[0], (args[1] if len(args) > 1 else {})
+        return _orig_tr(self, context.get("request"), name, context)
+    return _orig_tr(self, *args, **kwargs)
+
+
+_st.Jinja2Templates.TemplateResponse = _compat_tr  # type: ignore[method-assign]
 
 REPO_ROOT = Path(__file__).resolve().parent
 ARTIFACTS_DIR = REPO_ROOT / "artifacts"
