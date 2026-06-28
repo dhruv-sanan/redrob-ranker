@@ -1,3 +1,16 @@
+---
+title: Redrob Ranker
+emoji: 🎯
+colorFrom: indigo
+colorTo: blue
+sdk: gradio
+sdk_version: 4.40.0
+app_file: app.py
+python_version: "3.11"
+pinned: false
+license: apache-2.0
+---
+
 # redrob-ranker
 
 [![ci](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml)
