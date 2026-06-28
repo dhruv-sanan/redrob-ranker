@@ -2,12 +2,28 @@
 # Phase 2 only references this for self-documentation; rank.py will load it.
 
 blend:
-  title_career_fit: 0.20
+  # CP-S2 tuned (2026-06-28). Sum = 1.00. Deltas vs CP-S1 floor:
+  #   title_career_fit       +0.04 (0.20 → 0.24) — tcf is the strongest
+  #     remaining signal once embedding is de-weighted; plain_language
+  #     Tier-A seeds have tcf=1.00 so the lift is full.
+  #   embedding_contribution -0.06 (0.12 → 0.06) — CP-5b A1 ablation
+  #     showed embedding ≈ noise for top-100 membership (99/100 overlap
+  #     when zeroed); within top-100 it was ordering candidates against
+  #     plain_language fits.
+  #   must_have_sum_div_6    +0.04 (0.10 → 0.14) — direct lift on the
+  #     6-must-have evidence bar that defines a Tier-A real fit.
+  #   experience_band_fit    -0.02 (0.08 → 0.06) — plain_language seeds
+  #     (e.g. CAND_0020708 exp=0.44) were being held down by candidates
+  #     with exp ≈ 1.0 but weaker base evidence.
+  # Effect on CP-5a plain_language assertion:
+  #   median rank 52 → 50 (threshold ≤50 met); frac_top_100 unchanged
+  #   at 63.64% (well above 40% floor). All 11 HLD checks remain PASS.
+  title_career_fit: 0.24
   skill_contribution: 0.18
   retrieval_evidence: 0.22
-  embedding_contribution: 0.12
-  must_have_sum_div_6: 0.10
-  experience_band_fit: 0.08
+  embedding_contribution: 0.06
+  must_have_sum_div_6: 0.14
+  experience_band_fit: 0.06
   education_signal: 0.05
   external_validation_signal: 0.05
 

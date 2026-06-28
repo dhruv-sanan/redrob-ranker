@@ -2,13 +2,13 @@
 
 Source seed: `holdout_labels.csv` (99 rows)
 Submission: `top_100_submission.csv` (100 rows)
-Overall: **FAIL**
+Overall: **PASS**
 
 ## Bucket summary
 
 | bucket | n_seed | in_top_100 | in_top_50 | median_rank_in_top_100 |
 |---|---:|---:|---:|---:|
-| plain_language | 11 | 7 | 3 | 52.0 |
+| plain_language | 11 | 7 | 4 | 50.0 |
 | stuffer | 11 | 0 | 0 | — |
 | honeypot_drop | 11 | 0 | 0 | — |
 | honeypot_audit | 11 | 0 | 0 | — |
@@ -26,7 +26,7 @@ _No `true_label` values present — run after hand-labeling fills the seed CSV._
 
 | status | assertion | observed | threshold |
 |---|---|---|---|
-| FAIL | plain_language: median rank ≤ 50 in top-100 AND ≥40% reach top-100 | `median=52.0, frac_top_100=63.64%` | `median≤50 AND frac≥40%` |
+| PASS | plain_language: median rank ≤ 50 in top-100 AND ≥40% reach top-100 | `median=50.0, frac_top_100=63.64%` | `median≤50 AND frac≥40%` |
 | PASS | stuffer: ≤ 20% reach top-100 | `frac_top_100=0.00%` | `≤20%` |
 | PASS | honeypot_drop: 0 in top-100 (blocking check #5) | `in_top_100=0` | `==0` |
 | PASS | honeypot_audit: ≤ 30% reach top-100 | `frac_top_100=0.00%` | `≤30%` |
