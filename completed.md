@@ -269,7 +269,7 @@ README + progress + completed updates, `requirements.txt`,
 
 ## CP-3.5 — Encoder perf patch (post-CP-3 root-cause fix)
 
-**Commit:** `<TBD-pending-CP-3.5-commit>` (2026-06-28).
+**Commit:** `9716c84` (2026-06-28).
 
 ### Why
 CP-3's 100K encode took 64 min wall on M4 — predicted 5-8. Root cause:
@@ -380,6 +380,7 @@ redrob-ranker/
 ## Commit history
 
 ```
+9716c84  perf(embeddings): MPS auto-detect + thread tuning + parallel tokenizers (CP-3.5)
 79bc5d8  feat(embeddings): vendored BGE-small + full build_features pipeline (CP-3)
 7037ed9  feat(features): 9 feature builders + config + pipeline + build_features.py skeleton (CP-2)
 13542e4  feat(skeleton): repo init + reference_date + parsing + manifest + 50-candidate fixture (CP-1)
