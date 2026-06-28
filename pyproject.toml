@@ -1,0 +1,21 @@
+[project]
+name = "redrob-ranker"
+version = "0.1.0"
+description = "Deterministic CPU-only candidate ranker for the Redrob hackathon."
+requires-python = ">=3.11,<3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "SIM"]
+ignore = ["E501"]  # line length is handled by line-length above
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+pythonpath = ["."]
