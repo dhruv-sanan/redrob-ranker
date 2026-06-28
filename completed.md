@@ -618,6 +618,84 @@ libreoffice --headless --convert-to pdf redrob_submission.pptx
 
 ---
 
+## CP-S1 — Floor submission verified ✅
+
+**Date:** 2026-06-28 (post-CP-5d, no code changes).
+**Verdict:** all 11 `hld.md §3.5` blocking checks PASS or documented near-miss
+(plain_language median=52 vs ≤50 — CP-S2 weight-tuning signal, not a CP-S1
+blocker per the handoff note).
+
+### Floor artifacts (regenerated from current `artifacts/`)
+- `top_100_submission.csv` — 100 rows, strict-decreasing label scores.
+- `top_100_audit.csv` — 100 rows × 37 cols (incl. tier, must-haves, risk,
+  archetypes, reasoning).
+- `top_300_debug.csv` — 300 rows for inspection.
+- `reasoning_audit.csv` — 100 rows, all PASS.
+
+### 11 HLD blocking checks (verified against fresh `rank.py` output)
+
+| # | Check | Result |
+|---|---|---|
+| 1 | `validate_submission.py` clean | **PASS** — "Submission is valid." |
+| 2 | `rank.py` ≤ 5 min cold load | **PASS** — `real 1.91 s` on M4 (cap 300 s; 157× under) |
+| 3 | `artifacts/` < 5 GB | **PASS** — 220 MB (`230,392,143` bytes total) |
+| 4 | `reasoning_audit.py` PASS | **PASS** — 100/100 rows green |
+| 5 | zero `honeypot_drop=True` in top-100 | **PASS** — `max(honeypot_risk_score)=0.55` < `drop_threshold=0.65`; honeypots dropped pre-rank by construction (348 dropped → 99,652 survivors) |
+| 6 | zero non-tech-industry + low-evidence in top-50 | **PASS** — 0 rows with `non_tech_industry` archetype in top-50; 0 rows with any non-tech archetype AND `retrieval_evidence < 0.15` |
+| 7 | top-10 promotion gate satisfied | **PASS** — `top_10_gate_pool_size=275` at `min_must_have=2`; `relaxation_used=2` (strictest level, no relaxation fired) |
+| 8 | `rank.py` static import allow-list | **PASS** — `tests/test_rank_imports.py` 4/4 (allow-list, forbidden-ban, runtime-guard, no `datetime.now()`/`date.today()`) |
+| 9 | `manifest.json` hashes verified | **PASS** — `verify_manifest(m, Path('artifacts'))` returns clean |
+| 10 | holdout assertions pass | **8/9 PASS, 1 documented near-miss** — `plain_language median rank=52` vs threshold ≤50 (`frac_top_100=63.64%`, well above 40% recall floor). Label-grounded assertions still INACTIVE (`holdout_labels.csv` `true_label` column blank — operator hand-fill pending). CP-5a-documented; consumed by CP-S2 weight tuning, not a CP-S1 blocker per handoff brief. |
+| 11 | manual top-25 review (≥2 must-haves OR exception clause) | **PASS** — every top-25 row has 4-6 must-haves at the relaxed ≥0.3 bar (distribution `{4: 13, 5: 10, 6: 2}`); no exception clause needed |
+
+### `rank.py` telemetry on this floor run
+```
+rows_scored            100,000
+rows_after_honeypot_drop 99,652
+top_10_gate_pool_size      275
+top_10_relaxation_used       2    (strictest level — no relaxation)
+score_at_rank_51         0.6229
+score_at_rank_101        0.5612
+rank_50_clipped_count   41,093    (~41% of 99,652 survivors)
+rank_100_clipped_count       0
+wall                    1.91 s
+```
+
+### Top-25 audit snapshot (all Tier-A)
+- Ranks 1-25 all Tier A. Must-have count range 4-6 / 6.
+- `honeypot_risk_score` max in top-25 = 0.25 (well below 0.35 audit threshold).
+- `stuffer_risk` max = 0.40 (single row; below 0.7 Tier-E threshold).
+- `retrieval_evidence` range: 0.25-0.90 (median ≈ 0.66). No archetype clips.
+- No `anti_pattern_archetypes` fire in top-25.
+
+### Hand-steps the operator still owes (NOT CP-S1 blockers, per brief)
+1. **Label `holdout_labels.csv`** — 99 rows × `true_label`. Unblocks the
+   label-grounded assertions in `tools/holdout_report.py` (4 currently
+   inactive).
+2. **Export `redrob_submission.pdf`** from `redrob_submission.pptx`
+   (Keynote / PowerPoint manual step).
+3. **Push to GitHub** — repo is local-only.
+4. **Deploy HF Space** per `SANDBOX.md`.
+5. **Regenerate deck** with final URLs via
+   `tools/build_deck.py --github-url ... --sandbox-url ...`.
+
+### Gates at CP-S1 commit
+- `pytest -q` — **275 passed** in 9.78 s, 1 warning (gradio multipart deprecation, not our code).
+- `ruff check src tests tools rank.py reasoning_audit.py build_features.py app.py` — All checks passed.
+- `ruff format --check ...` — 62 files already formatted.
+
+### CP-S2 entry signals (load-bearing — recap from CP-5a/5b)
+- **`plain_language` median=52** is the marginal gap; tune to lift these to
+  median ≤ 50. CP-5b A3 shows `availability × logistics` is the dominant
+  top-10 lever — tune carefully.
+- **Embedding contribution near-noise** (CP-5b A1 = 99/100). Lower
+  `embedding_contribution` weight; redirect mass to `must_have_sum_div_6`
+  and `retrieval_evidence`.
+- **Keep ceilings + top-10 gate** (CP-5b A4/A5 = 100/100). Defensive only,
+  but the floor depends on them for stuffer/honeypot drift resistance.
+
+---
+
 ## Cumulative repo layout (post-CP-5d)
 
 ```
@@ -748,15 +826,15 @@ reasoning_audit.csv              # reasoning_audit.py output
 
 ---
 
-## What's left (post-CP-5d)
+## What's left (post-CP-S1)
 
 | CP | Scope | ETA |
 |---|---|---|
-| **CP-S1** | Floor submission. All 11 `hld.md` blocking checks pass. Submission CSV = current `rank.py` output. | day-3 evening |
-| **CP-S2** | Tuned weights from CP-5a labels + CP-5b ablation signal + top-25 manual review. | day-4 evening |
+| ~~**CP-S1**~~ | ~~Floor submission. All 11 `hld.md` blocking checks pass.~~ | ✅ shipped 2026-06-28 |
+| **CP-S2** | Tuned weights from CP-5a labels (when filled) + CP-5b ablation signal + plain_language median=52 lift. | day-4 evening |
 | **CP-S3** | Final, cold-clone-verified. | day-5 evening |
 
-### Hand-steps the operator (Dhruv) needs to complete before CP-S1
+### Hand-steps the operator (Dhruv) still owes (NOT CP-S1 blockers per brief; needed before CP-S2 / CP-S3 sign-off)
 1. **Label `holdout_labels.csv`** — 99 rows × `true_label` column. Allowed
    values: `fit` / `near_fit` / `not_fit` / `honeypot` / `stuffer`. After
    labels filled, re-run `python tools/holdout_report.py` to enable the
