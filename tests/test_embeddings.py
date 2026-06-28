@@ -20,6 +20,7 @@ from src.embeddings import (
     encode_jd_intents,
     hash_model_dir,
     load_model,
+    resolve_device,
 )
 
 MODEL_DIR = Path(__file__).resolve().parent.parent / "artifacts" / "model"
@@ -102,6 +103,21 @@ def test_hash_model_dir_changes_on_new_file(tmp_path: Path) -> None:
 def test_load_model_raises_on_missing_dir(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError):
         load_model(tmp_path / "absent")
+
+
+def test_resolve_device_passthrough() -> None:
+    assert resolve_device("cpu") == "cpu"
+    assert resolve_device("mps") == "mps"
+    assert resolve_device("cuda") == "cuda"
+
+
+def test_resolve_device_auto_returns_supported_backend() -> None:
+    import torch
+
+    expected = (
+        "mps" if (torch.backends.mps.is_available() and torch.backends.mps.is_built()) else "cpu"
+    )
+    assert resolve_device("auto") == expected
 
 
 @pytest.mark.skipif(not _model_available(), reason="BGE model not vendored")

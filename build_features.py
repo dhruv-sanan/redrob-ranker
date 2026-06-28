@@ -30,6 +30,7 @@ from src.embeddings import (
     encode_jd_intents,
     hash_model_dir,
     load_model,
+    resolve_device,
 )
 from src.feature_pipeline import FEATURE_COLUMNS, build_features_df
 from src.io_utils import sha256_file, write_parquet
@@ -104,6 +105,17 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Disable encoder progress bar (useful in CI/redirected output)",
     )
+    p.add_argument(
+        "--device",
+        default="auto",
+        help="Torch device: auto (default; MPS on Apple Silicon, else CPU), cpu, mps, cuda",
+    )
+    p.add_argument(
+        "--torch-threads",
+        type=int,
+        default=8,
+        help="torch.set_num_threads value when device is CPU (default: 8)",
+    )
     args = p.parse_args(argv)
 
     out: Path = args.out
@@ -112,10 +124,17 @@ def main(argv: list[str] | None = None) -> int:
     candidates_path: Path = args.candidates
     requirements_path = Path(__file__).resolve().parent / "requirements.txt"
 
+    device = resolve_device(args.device)
+    if device == "cpu":
+        import torch
+
+        torch.set_num_threads(args.torch_threads)
+
     print(f"[build_features] reference_date={REFERENCE_DATE.isoformat()}", flush=True)
     print(f"[build_features] candidates={candidates_path}", flush=True)
     print(f"[build_features] out={out}", flush=True)
     print(f"[build_features] model_dir={model_dir}", flush=True)
+    print(f"[build_features] device={device}", flush=True)
 
     # 1. Vendor model if missing.
     t0 = time.perf_counter()
@@ -137,7 +156,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # 4. Load model + encode candidates.
     t0 = time.perf_counter()
-    model = load_model(model_dir)
+    model = load_model(model_dir, device=device)
     print(f"[build_features] loaded model in {time.perf_counter() - t0:.1f}s", flush=True)
 
     t0 = time.perf_counter()
@@ -216,5 +235,8 @@ if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     # Reduce noise from transformers logging.
     os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
-    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+    # HF tokenizer worker threads enabled — single-threaded tokenization was a
+    # major encoder hotspot. Pre-fork warning is suppressed because we do not
+    # fork after this point.
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "true")
     sys.exit(main())

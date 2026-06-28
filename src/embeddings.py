@@ -54,15 +54,35 @@ def candidate_docs(records: Iterable[dict[str, Any]]) -> list[str]:
     return [candidate_doc(r) for r in records]
 
 
-def load_model(model_dir: Path) -> Any:
-    """Load a vendored SentenceTransformer from disk. Force CPU; no network."""
+def resolve_device(device: str = "auto") -> str:
+    """Resolve `"auto"` to `"mps"` on Apple Silicon when available, else `"cpu"`.
+
+    Explicit values (`"cpu"`, `"mps"`, `"cuda"`) are returned as-is. Stage-3
+    Linux reviewer auto-falls-back to CPU because `torch.backends.mps` is
+    unavailable there.
+    """
+    if device != "auto":
+        return device
+    import torch
+
+    if torch.backends.mps.is_available() and torch.backends.mps.is_built():
+        return "mps"
+    return "cpu"
+
+
+def load_model(model_dir: Path, device: str = "auto") -> Any:
+    """Load a vendored SentenceTransformer from disk; no network.
+
+    `device` defaults to `"auto"`: MPS on Apple Silicon when available,
+    otherwise CPU. Pass `"cpu"` explicitly for bitwise-deterministic runs.
+    """
     from sentence_transformers import SentenceTransformer
 
     if not model_dir.exists():
         raise FileNotFoundError(
             f"model dir not found: {model_dir}. Run `python tools/vendor_model.py` first."
         )
-    return SentenceTransformer(str(model_dir), device="cpu")
+    return SentenceTransformer(str(model_dir), device=resolve_device(device))
 
 
 def encode_strings(

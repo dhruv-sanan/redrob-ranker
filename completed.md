@@ -267,6 +267,50 @@ README + progress + completed updates, `requirements.txt`,
 
 ---
 
+## CP-3.5 — Encoder perf patch (post-CP-3 root-cause fix)
+
+**Commit:** `<TBD-pending-CP-3.5-commit>` (2026-06-28).
+
+### Why
+CP-3's 100K encode took 64 min wall on M4 — predicted 5-8. Root cause:
+`device="cpu"` hard-coded, `TOKENIZERS_PARALLELISM=false`, no
+`torch.set_num_threads(...)` call → effective 2-thread use of a 10-core M4.
+
+### Patch
+- `src/embeddings.py`: new `resolve_device(device="auto")` — auto-selects
+  MPS on Apple Silicon, else CPU. `load_model(model_dir, device="auto")`
+  takes an explicit device.
+- `build_features.py`: `--device {auto|cpu|mps|cuda}` and `--torch-threads N`
+  (default 8); flips `TOKENIZERS_PARALLELISM` to `true`; sets
+  `torch.set_num_threads` on CPU device.
+- `tests/test_embeddings.py`: +2 cases for `resolve_device` (pass-through +
+  auto-resolution matches torch capability). 140 pytest green.
+
+### Measured throughput (1000-doc samples)
+| Path | Rate | Projected 100K |
+|---|---|---|
+| CPU + threads=8 + parallel tokenizers, batch 128 | 33 docs/s | 50 min |
+| CPU + threads=8 + parallel tokenizers, cap=1024  | 58 docs/s | 28 min |
+| MPS, batch=512 | OOM | — |
+| MPS, batch=64 / 128 / 256 | stalled (Metal kernel launch overhead) | — |
+
+### Decision
+- Keep CPU as default. M4 MPS path on BGE-small is dominated by per-batch
+  Metal-kernel launch overhead — bigger batches OOM (Apple unified memory
+  shared with system), smaller batches stall the GPU. Not worth the risk for
+  this hackathon.
+- Do **not** re-run the 100K encode now — CP-3 artifacts are still valid
+  (`verify_manifest` passes) and `rank.py` (CP-4) consumes the `.npy`
+  regardless of how it was generated.
+- CP-3.5 is a forward-fix: any future re-run (Stage-3 reviewer cold-clone,
+  weight-sweep iteration, doc-cap change) benefits from the threading +
+  tokenizer parallelism. Expected cold-clone wall on M4: **~50 min** at the
+  default `DOC_CHAR_CAP=4096` (down from 64 min); ~28 min at cap=1024.
+- The `DOC_CHAR_CAP=1024` tuning is left for a possible CP-3.5 follow-up
+  once we see top-100 audit results in CP-4 — premature for now since
+  truncating richer descriptions could hurt the JD's "plain-language fit"
+  signal (`evidence_channels` Y-channel).
+
 ## Cumulative repo layout (after CP-3 commit lands)
 
 ```
