@@ -2,7 +2,7 @@
 
 > Append-only. Onboard a fresh session by reading this top-to-bottom; no need
 > to re-read `problem.md` / `lld.md` / `hld.md` unless changing architecture.
-> Last updated: 2026-06-28 (post-CP-4).
+> Last updated: 2026-06-28 (post-CP-5d).
 
 ---
 
@@ -419,25 +419,232 @@ reasoning_audit: PASS 100 rows; wrote reasoning_audit.csv
 - Reasoning snippets sometimes truncate mid-word with an ellipsis
   (`BM25-o…`). Not a blocker; clean up in CP-5 polish if time permits.
 
-## Cumulative repo layout (post-CP-4)
+---
+
+## CP-5a — Stratified holdout sourcing + report ✅
+
+**Commit:** `1ea6b27` (2026-06-28).
+**Files:** 5 added, +1,416 LOC.
+
+### Shipped
+- `tools/build_holdout.py` — sources 99 candidates across 9 strata with
+  deterministic `seed=42` sampling. Refuses to clobber an existing
+  `holdout_labels.csv` unless `--force` (protects hand-labels).
+- `tools/holdout_report.py` — joins seed CSV against `top_100_submission.csv`,
+  computes 9 predicate-bucket assertions + 4 optional label-grounded
+  assertions, writes `holdout_report.md`. Empty buckets vacuously PASS.
+- `tests/test_holdout.py` — 35 cases (predicates, sampling determinism,
+  CSV schema, report logic, overwrite guard).
+- `holdout_labels.csv` — 99 candidates × 9 buckets × 11 each, blank
+  `true_label` / `notes` for the operator's hand-fill.
+- `holdout_report.md` — current state snapshot.
+
+### Bucket design (deviation from problem.md §5 draft)
+The CP-5a draft in completed.md named 9 buckets including CV-Speech-Expert,
+Strong-Recsys-Weak-Skill-List, and Strong-AI-but-Inactive. Real data
+inspection showed these archetypes never fire — only `non_tech_title=34339`
+and `services_only=8945` populate. Replaced the 3 vacuous buckets with:
+`honeypot_audit`, `services_to_product`, `irrelevant_tail` — all of which
+exercise real archetype + ledger paths.
+
+Final 9 buckets:
+1. `plain_language` — `retrieval_evidence >= 0.3` + `has_production >= 0.5` (pool 128)
+2. `stuffer` — `stuffer_risk >= 0.6` + `retrieval_evidence < 0.2` (pool 1,870)
+3. `honeypot_drop` — `honeypot_drop=True` (pool 348)
+4. `honeypot_audit` — audit-only flag (`audit & not drop & risk>=0.45`)
+5. `irrelevant_tail` — `tier=D & retrieval<0.05 & no honeypot` (pool 87K)
+6. `services_only` — archetype `services_only`
+7. `services_to_product` — services-company in history but NOT `services_only` archetype
+8. `outside_india` — `profile.country != 'India'` (pool 25K)
+9. `non_tech_title` — archetype `non_tech_title`
+
+### Assertion state (pre-labels)
+- 8/9 predicate assertions PASS
+- 1 FAIL: `plain_language` median rank = **52** (threshold ≤ 50);
+  `frac_top_100 = 63.6%` (well above 40% recall floor). The plain-language
+  signal recall is healthy; ranking pressure is the marginal gap.
+  CP-S2 weight tuning consumes this.
+- `honeypot_drop` count in top-100 = **0** (blocking check #5 satisfied).
+- `irrelevant_tail` count in top-100 = **0**.
+- All ceiling-clipped buckets (services_only, non_tech_title) below 50%
+  frac_top_50.
+
+### Gates at commit
+- 231 pytest green.
+- ruff check + format clean.
+
+---
+
+## CP-5b — Ablations + runtime report ✅
+
+**Commit:** `0e72833` (2026-06-28).
+**Files:** 6 added/modified, +906 LOC.
+
+### Shipped
+- `tools/ablations.py` — 6-variant driver (A0..A5) with deep-copied weights
+  to prevent mutation leak. Exports per-variant top-100 CSVs to
+  `ablations/` (gitignored).
+- `tools/runtime_report.py` — spawns `rank.py` subprocess, captures wall
+  via `time.perf_counter` + peak RSS via `resource.getrusage(RUSAGE_CHILDREN)`,
+  stats artifact disk, re-emits tier histogram from
+  `build_features_summary.json`, writes `runtime_report.md`. Cleans up
+  the `_runtime_tmp/` working dir on exit.
+- `tests/test_ablations.py` — 22 cases (overlap math, variant dispatch,
+  mutation isolation, no-gate path, runtime helpers).
+- `ablation_report.md` + `runtime_report.md` — committed deliverables.
+
+### Variants
+| code | label | mutation |
+|---|---|---|
+| A0 | baseline | current weights + ceilings + multipliers + gate |
+| A1 | no_embedding | `blend.embedding_contribution = 0.0` |
+| A2 | no_skill_blend | `blend.skill_contribution = 0.0` (proxy for skill-stripped doc; full re-encode would cost 50 min) |
+| A3 | no_behavioral_mult | replace `final_score` with `base_score` (no avail × logistics × market) |
+| A4 | no_anti_pattern | replace `final_score` with `final_score_uncapped` |
+| A5 | no_top_10_gate | bypass `build_top_10_pool`; take first 10 by global order |
+
+### Ablation findings on real 100K artifacts
+| variant | top-100 | top-10 stable | top-50 stable | jaccard | wall |
+|---|---:|---:|---:|---:|---:|
+| A1 no_embedding | 99/100 | 10/10 | 50/50 | 0.980 | 0.42 s |
+| A2 no_skill_blend | 95/100 | 9/10 | 49/50 | 0.905 | 0.35 s |
+| A3 no_behavioral_mult | **90/100** | **3/10** | **36/50** | 0.818 | 0.34 s |
+| A4 no_anti_pattern | 100/100 | 10/10 | 50/50 | 1.000 | 0.37 s |
+| A5 no_top_10_gate | 100/100 | 10/10 | 50/50 | 1.000 | 0.25 s |
+
+### Key signals (consumed by CP-S2 weight tuning)
+- **A3 = dominant top-10 lever.** `availability × logistics` multipliers
+  flip 7/10 of the top ranks. NOT cosmetic — tune carefully.
+- **A1 ≈ noise.** Embedding contributes almost nothing to top-100 membership
+  (99/100 overlap). Don't burn cycles tuning `embedding_contribution`
+  weight; if anything, lower it.
+- **A4 / A5 = defensive only.** Ceilings + gate don't reshape current
+  top-100 (already gate-eligible at score-sort head). Their value is
+  keeping stuffer / honeypot drift OUT under future data shifts. Keep
+  as guardrails; don't remove.
+- **A2 = moderate.** 5-row churn at the rank-100 boundary; small ROI
+  unless paired with feature signal improvements.
+
+### Runtime on current artifacts (M4 CPU)
+- `rank.py` wall: **1.87 s** (target 60 s, hard cap 300 s — 32× under)
+- `rank.py` peak RSS: **1.8 GB** (well under 16 GB cap)
+- Artifacts: 91.45 MB no model / 219.72 MB with model (5 GB cap)
+- Build wall (historical from CP-3, unchanged): ~50 min on M4 CPU
+- Tier histogram (unchanged from CP-3): `{A:82, B:384, C:10188, D:87275, E:2071}`
+- `honeypot_drop = 348`, `honeypot_audit = 15143`
+
+### Gates at commit
+- 253 pytest green.
+- ruff check + format clean.
+
+---
+
+## CP-5c — HuggingFace Space + Docker sandbox ✅
+
+**Commit:** `37ec246` (2026-06-28).
+**Files:** 5 added, +519 LOC.
+
+### Shipped
+- `app.py` — Gradio entry. `RankerState` lazy singleton (model +
+  `jd_intent_vecs` + weights + skeletons loaded once). `rank_sample()`
+  reuses `src.scoring` + `src.ranking` + `src.reasoning` end-to-end on
+  fresh sample (does NOT load precomputed `candidate_emb.npy` — sample is
+  fresh data, encoded on the fly with vendored BGE-small).
+- `requirements-app.txt` — `gradio>=4.40,<5.0` (sandbox-only; rank.py path stays
+  gradio-free).
+- `Dockerfile` — Python 3.11-slim base; vendors BGE model at build time
+  for fast cold-start.
+- `SANDBOX.md` — HF Space + Docker deployment recipes + local smoke-check.
+- `tests/test_app.py` — 11 cases (4 hermetic for parsing / CSV / UI errors,
+  7 integration guarded by `_model_available()`).
+
+### Architecture invariant preserved
+`app.py` is a SEPARATE entry point — gradio / sentence-transformers
+imports do NOT pollute `rank.py`'s restricted allow-list. The Stage-3
+reviewer path runs `rank.py` standalone with the import guard intact.
+`tests/test_rank_imports.py` (4 cases) confirms.
+
+### Smoke verification
+- Real 20-candidate sample from `artifacts/candidates.parquet`: ranked
+  5 rows with proper reasoning rendering in ~1 s after model load.
+- Output CSV schema matches `validate_submission.py` (candidate_id,
+  rank, score, reasoning).
+- Monotonic score, ascending rank.
+
+### Gates at commit
+- 264 pytest green.
+- ruff check + format clean.
+
+---
+
+## CP-5d — Submission PPTX builder ✅
+
+**Commit:** `43de47e` (2026-06-28).
+**Files:** 4 added/modified, +809 LOC.
+
+### Shipped
+- `tools/build_deck.py` — opens the Redrob "Idea Submission Template"
+  PPTX via `python-pptx`, populates all 11 slides with content from
+  `pptx.md`, writes `redrob_submission.pptx`. Slide 6 (Workflow) and
+  Slide 7 (Architecture) get proper shape diagrams (rounded rectangles +
+  arrows). Slide 8 (Results) pulls live numbers from
+  `build_features_summary.json` + `top_100_audit.csv` via
+  `gather_runtime_numbers()`.
+- `tests/test_build_deck.py` — 11 cases (slide-content invariants,
+  runtime-numbers gather, prompt-finder logic, end-to-end deck assembly).
+- `requirements-dev.txt` — adds `python-pptx>=1.0,<2.0` (dev-only).
+- `.gitignore` — `redrob_submission.{pptx,pdf}` gitignored (regenerable
+  binaries).
+
+### Template fidelity
+- PICTURE shapes (brand / border) untouched.
+- Title text boxes preserved (slide 7 has only a title and no prompt
+  block — code explicitly skips the prompt-replacement path there to
+  avoid losing "System Architecture").
+- Only prompt blocks rewritten; new diagram shapes added on top of
+  empty content zones.
+
+### PDF export
+Manual final step. `libreoffice` not installed locally. The CLI prints
+both recipes:
+```
+libreoffice --headless --convert-to pdf redrob_submission.pptx
+# OR open in Keynote / PowerPoint → File → Export → PDF
+```
+
+### Gates at commit
+- 275 pytest green.
+- ruff check + format clean.
+
+---
+
+## Cumulative repo layout (post-CP-5d)
 
 ```
 redrob-ranker/
 ├── README.md
+├── SANDBOX.md                  # NEW in CP-5c — HF Space + Docker recipes
+├── Dockerfile                  # NEW in CP-5c — sandbox fallback
 ├── completed.md                ← this file (offload doc)
 ├── progress.md                 ← 2-line entry per CP
 ├── pyproject.toml              # ruff/pytest config, python = ">=3.11,<3.12"
 ├── requirements.txt            # production runtime
-├── requirements-dev.txt        # + pytest + ruff
-├── build_features.py           # ENTRY (offline, ~60 min CPU on 100K)
+├── requirements-dev.txt        # + pytest + ruff + python-pptx (CP-5d)
+├── requirements-app.txt        # NEW in CP-5c — gradio (sandbox only)
+├── app.py                      # ENTRY (Gradio sandbox; NOT under rank.py allow-list)
+├── build_features.py           # ENTRY (offline, ~50 min CPU on 100K)
 ├── rank.py                     # ENTRY (online, restricted imports, ~2 s on 100K)
 ├── reasoning_audit.py          # ENTRY (independent post-rank audit)
+├── holdout_labels.csv          # NEW in CP-5a — 99-row seed for hand-labeling
+├── holdout_report.md           # NEW in CP-5a — bucket assertion state
+├── ablation_report.md          # NEW in CP-5b — A0..A5 overlap deltas
+├── runtime_report.md           # NEW in CP-5b — wall + RAM + disk + tier histogram
 ├── config/
 │   ├── aliases.yaml
 │   ├── anti_patterns.yaml
 │   ├── jd_intents.yaml
 │   ├── regex_channels.yaml
-│   ├── skeletons.yaml           # NEW in CP-4 — reasoning templates × 4 bands
+│   ├── skeletons.yaml           # CP-4 — reasoning templates × 4 bands
 │   ├── thresholds.yaml
 │   └── weights.yaml             # 8-term linear blend + capped factors
 ├── src/
@@ -448,49 +655,58 @@ redrob-ranker/
 │   ├── io_utils.py
 │   ├── manifest.py              # Manifest + verify_manifest + ArtifactError
 │   ├── parsing.py
-│   ├── ranking.py               # NEW in CP-4 — tier sort + top-10 gate
-│   ├── reasoning.py             # NEW in CP-4 — evidence ledger + skeletons
+│   ├── ranking.py               # CP-4 — tier sort + top-10 gate
+│   ├── reasoning.py             # CP-4 — evidence ledger + skeletons
 │   ├── reference_date.py        # REFERENCE_DATE = date(2026, 6, 1)
-│   ├── scoring.py               # NEW in CP-4 — blend + ceilings
+│   ├── scoring.py               # CP-4 — blend + ceilings
 │   └── features/
 │       ├── __init__.py
 │       ├── anti_patterns.py
 │       ├── behavioral.py
-│       ├── education.py         # NEW in CP-4
+│       ├── education.py         # CP-4
 │       ├── evidence_channels.py
-│       ├── experience_band.py   # NEW in CP-4
+│       ├── experience_band.py   # CP-4
 │       ├── honeypot_ledger.py
 │       ├── must_haves.py
 │       ├── skill_trust.py
 │       ├── stuffer_risk.py
 │       ├── tiering.py
 │       └── title_career.py
-├── tests/                       # 196 cases, all green
+├── tests/                       # 275 cases, all green (196 pre-Phase-5 + 79 new)
 │   ├── conftest.py              # synthetic_50 + by_id fixtures
 │   ├── test_anti_patterns.py
+│   ├── test_app.py              # NEW in CP-5c — sandbox parsing + e2e
+│   ├── test_ablations.py        # NEW in CP-5b — variants + runtime helpers
 │   ├── test_behavioral.py
+│   ├── test_build_deck.py       # NEW in CP-5d — deck builder
 │   ├── test_build_features_e2e.py
-│   ├── test_education.py        # NEW in CP-4
+│   ├── test_education.py
 │   ├── test_embeddings.py
-│   ├── test_end_to_end.py       # NEW in CP-4 — subprocess rank.py + validate
+│   ├── test_end_to_end.py       # CP-4 — subprocess rank.py + validate
 │   ├── test_evidence_channels.py
-│   ├── test_experience_band.py  # NEW in CP-4
+│   ├── test_experience_band.py
 │   ├── test_feature_pipeline.py
+│   ├── test_holdout.py          # NEW in CP-5a — bucket predicates + report
 │   ├── test_honeypot_ledger.py
 │   ├── test_manifest.py
 │   ├── test_must_haves.py
 │   ├── test_parsing.py
-│   ├── test_rank_imports.py     # NEW in CP-4 — AST allow-list + forbidden ban
-│   ├── test_ranking.py          # NEW in CP-4
-│   ├── test_reasoning.py        # NEW in CP-4
-│   ├── test_reasoning_audit.py  # NEW in CP-4
-│   ├── test_scoring.py          # NEW in CP-4
+│   ├── test_rank_imports.py     # CP-4 — AST allow-list + forbidden ban
+│   ├── test_ranking.py          # CP-4
+│   ├── test_reasoning.py        # CP-4
+│   ├── test_reasoning_audit.py  # CP-4
+│   ├── test_scoring.py          # CP-4
 │   ├── test_skill_trust.py
 │   ├── test_stuffer_risk.py
 │   ├── test_tiering.py
 │   └── test_title_career.py
 ├── tools/
-│   ├── rebuild_features_parquet.py  # NEW in CP-4 — regen features w/o re-encode
+│   ├── ablations.py             # NEW in CP-5b — A0..A5 driver
+│   ├── build_deck.py            # NEW in CP-5d — PPTX builder
+│   ├── build_holdout.py         # NEW in CP-5a — 9-bucket seed sourcing
+│   ├── holdout_report.py        # NEW in CP-5a — bucket assertion runner
+│   ├── rebuild_features_parquet.py  # CP-4 — regen features w/o re-encode
+│   ├── runtime_report.py        # NEW in CP-5b — wall + RAM + disk report
 │   └── vendor_model.py
 └── artifacts/                   # ENTIRE DIR gitignored (large + model + outputs)
     ├── manifest.json            # current artifact metadata (verify_manifest target)
@@ -502,11 +718,27 @@ redrob-ranker/
     └── model/                   # vendored BGE-small (~135 MB); re-vendored per clone
 ```
 
+### Phase-5 ignored / runtime-only outputs (NOT in git)
+```
+ablations/                       # per-variant top-100 CSVs (tools/ablations.py)
+redrob_submission.pptx           # built by tools/build_deck.py
+redrob_submission.pdf            # manual export from .pptx
+top_100_submission.csv           # rank.py output
+top_100_audit.csv                # rank.py output
+top_300_debug.csv                # rank.py output
+reasoning_audit.csv              # reasoning_audit.py output
+```
+
 ---
 
 ## Commit history
 
 ```
+43de47e  feat(deck): CP-5d submission PPTX builder from template + live metrics
+37ec246  feat(sandbox): CP-5c HuggingFace Space + Docker fallback
+0e72833  feat(ablations): CP-5b ablation suite + runtime report
+1ea6b27  feat(holdout): CP-5a stratified holdout sourcing + report assertions
+090a1b8  docs(completed): post-CP-4 layout + handoff runbook for next agent
 1221a8c  feat(ranking): full online rank.py + scoring + reasoning + audit (CP-4)
 9716c84  perf(embeddings): MPS auto-detect + thread tuning + parallel tokenizers (CP-3.5)
 79bc5d8  feat(embeddings): vendored BGE-small + full build_features pipeline (CP-3)
@@ -516,22 +748,46 @@ redrob-ranker/
 
 ---
 
-## What's left (post-CP-4)
+## What's left (post-CP-5d)
 
 | CP | Scope | ETA |
 |---|---|---|
-| **CP-5a** | Hand-label `holdout_labels.csv` across 9 stratified buckets; `holdout_report.md` bucket assertions (see `problem.md §5` + `hld.md` blocking check #10). Source candidates from current `top_300_debug.csv` for the Plain-Language / Stuffer / Honeypot / Irrelevant / Services→Product / Strong-AI-but-Inactive / Outside-India / Strong-Recsys-Weak-Skill-List / CV-Speech-Expert-Weak-NLP buckets. | ~1.5 hr |
-| **CP-5b** | `ablations.py` (A0 full, A1 no-embedding, A2 no-skills-in-doc, A3 no-behavioral-mult, A4 no-anti-pattern-ceilings, A5 no-top-10-gate). Compute top-100 overlap delta vs A0. Write `ablation_report.md` + `runtime_report.md` (build wall, rank wall, RAM, disk, honeypot count, tier histogram). | ~1 hr |
-| **CP-5c** | HuggingFace Space (or Docker fallback) live, ≤ 5 min on free tier. Reuse `rank.py` directly; ship pre-computed artifacts. | ~1.5 hr |
-| **CP-5d** | 11-slide PPTX → PDF per `pptx.md`. | ~1.5 hr |
 | **CP-S1** | Floor submission. All 11 `hld.md` blocking checks pass. Submission CSV = current `rank.py` output. | day-3 evening |
-| **CP-S2** | Tuned weights from holdout + ablation deltas + top-25 manual review. | day-4 evening |
+| **CP-S2** | Tuned weights from CP-5a labels + CP-5b ablation signal + top-25 manual review. | day-4 evening |
 | **CP-S3** | Final, cold-clone-verified. | day-5 evening |
 
-### Open polish items (CP-5 backlog, not blocking)
+### Hand-steps the operator (Dhruv) needs to complete before CP-S1
+1. **Label `holdout_labels.csv`** — 99 rows × `true_label` column. Allowed
+   values: `fit` / `near_fit` / `not_fit` / `honeypot` / `stuffer`. After
+   labels filled, re-run `python tools/holdout_report.py` to enable the
+   label-grounded assertions.
+2. **Export `redrob_submission.pdf`** — `tools/build_deck.py` produced
+   `redrob_submission.pptx`. PDF export is manual (libreoffice not
+   installed locally). Open in Keynote / PowerPoint → File → Export → PDF.
+3. **Push to GitHub** — repo is currently local-only on `main`. The
+   submission spec asks for a public repo URL.
+4. **Deploy HF Space** — per `SANDBOX.md`. Final URL goes into
+   `tools/build_deck.py --github-url --sandbox-url` for slide 10.
+5. **Regenerate deck** with final URLs once HF Space is live.
+
+### CP-S2 weight-tuning priors (from CP-5b ablation findings)
+- **Tune behavioral multipliers carefully** — A3 dropped top-10 stability
+  to 3/10. `availability_signal` × `logistics_multiplier` is the strongest
+  reorder lever in the current scoring stack.
+- **Lower or remove `embedding_contribution` weight** — A1 showed embedding
+  is near-noise (99/100 overlap). Reweighting toward `must_have_sum_div_6`
+  + `retrieval_evidence` is the right direction.
+- **Keep anti-pattern ceilings + top-10 gate** — both are defensive
+  guardrails (A4 / A5 = 100/100 overlap on current data). Removing them
+  exposes the ranker to stuffer / honeypot drift on future data.
+- **CP-5a plain_language median = 52** (threshold ≤ 50, fails by 2 ranks).
+  Lifting plain-language fits is the highest-priority signal for CP-S2.
+
+### Open polish items (Phase-5 backlog, not blocking)
 - `honeypot_drop = 348` is above the 80–150 calibration target — tighten
-  ledger thresholds in `config/thresholds.yaml` once we see which real
-  candidates the audit set agrees are honeypots.
+  ledger thresholds in `config/thresholds.yaml` once labels in
+  `holdout_labels.csv` arrive and the user has confirmed which drops are
+  true honeypots.
 - Snippet truncation in reasoning ends mid-word with `…` (e.g.
   `BM25-o…`). Cosmetic. Fix in `_truncate()` to cut at last whitespace.
 - Synthetic data shares role descriptions across some candidates → some
@@ -549,21 +805,31 @@ redrob-ranker/
 cd /Users/dhruvsanan/Desktop/India_runs/redrob-ranker
 source .venv/bin/activate                         # Python 3.11.15
 git log --oneline | head -6                       # confirm last commit
-# Expected head: b90324c docs(completed): back-fill CP-4 commit hash 1221a8c
-git status                                        # should be clean
+# Expected head: 43de47e feat(deck): CP-5d submission PPTX builder from template + live metrics
+git status                                        # should be clean (artifacts/ untracked is expected)
 ls artifacts/                                     # all 6 artifacts + model/
-pytest -q                                         # 196 passed
+pytest -q                                         # 275 passed
 python rank.py --artifacts ./artifacts/ \
               --out top_100_submission.csv \
               --audit top_100_audit.csv \
               --debug top_300_debug.csv          # ~2 s
 python "/Users/dhruvsanan/Desktop/India_runs/[PUB] India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/validate_submission.py" top_100_submission.csv
 python reasoning_audit.py --audit top_100_audit.csv --candidates artifacts/candidates.parquet --out reasoning_audit.csv
+
+# Phase-5 tools (run as needed):
+python tools/holdout_report.py                    # bucket assertions against current top_100
+python tools/ablations.py                         # A0..A5 → ablation_report.md
+python tools/runtime_report.py                    # wall + RAM + disk → runtime_report.md
+python tools/build_deck.py                        # → redrob_submission.pptx
 ```
 
 If `artifacts/model/` missing on a fresh clone: `python tools/vendor_model.py`.
-If `artifacts/*.npy` / `*.parquet` missing: re-run `build_features.py` (~60 min
+If `artifacts/*.npy` / `*.parquet` missing: re-run `build_features.py` (~50 min
 on M4 CPU; one cup of coffee). The CP-3.5 patch already tunes for that.
+
+Sandbox (CP-5c) requires `pip install -r requirements-app.txt` first;
+deck builder (CP-5d) requires `pip install -r requirements-dev.txt`
+(adds `python-pptx`).
 
 ### What to feed the next agent
 
@@ -575,17 +841,40 @@ Paste this verbatim:
 > Do **not** re-debate architecture; do **not** re-read those two unless a
 > *new* design question arises.
 >
-> Repo state: CP-1, CP-2, CP-3, CP-3.5, CP-4 are all committed and green
-> (196 pytest, ruff clean, `rank.py` 1.96 s wall on 100K,
-> `validate_submission.py` clean, `reasoning_audit.py` PASS). Next is
-> **CP-5a**: hand-label a 100-row stratified holdout (9 buckets, ~11 each)
-> drawn from the current `top_300_debug.csv` + the bottom of the global
-> ordered list. Bucket definitions and required passes are in
-> `problem.md §5` and `hld.md` blocking check #10.
+> Repo state: CP-1 through CP-5d are all committed and green
+> (**275 pytest**, ruff clean, `rank.py` 1.87 s wall on 100K,
+> `validate_submission.py` clean, `reasoning_audit.py` PASS 100/100).
+> Last commit: `43de47e` feat(deck): CP-5d submission PPTX builder.
+>
+> Working dir: `/Users/dhruvsanan/Desktop/India_runs/redrob-ranker`.
+> Activate venv: `.venv/bin/activate`. Branch: `main`. Local-only, no
+> remote configured yet.
+>
+> **Next is CP-S1 (floor submission)** — run all 11 `hld.md` blocking
+> checks against the current `rank.py` output, fix anything that fails,
+> commit the verified floor. Do NOT start CP-S2 weight tuning until
+> CP-S1 is green and signed off.
+>
+> The CP-5a holdout label-grounded assertions remain INACTIVE until
+> the operator (Dhruv) fills `holdout_labels.csv` `true_label` column.
+> Predicate-bucket assertions already PASS 8/9 (one near-miss:
+> plain_language median rank = 52 vs threshold 50). This is the signal
+> CP-S2 weight tuning consumes — not a CP-S1 blocker.
+>
+> Hand-steps the operator owes before full CP-S1 sign-off (block CP-S1
+> on these only if Dhruv hasn't completed them — otherwise verify what
+> is verifiable and flag what's missing):
+> 1. Label `holdout_labels.csv` (99 rows × `true_label`).
+> 2. Export `redrob_submission.pdf` from `redrob_submission.pptx`
+>    (Keynote / PowerPoint manual step).
+> 3. Push to GitHub.
+> 4. Deploy HF Space.
+> 5. Regenerate deck with final URLs (`tools/build_deck.py
+>    --github-url ... --sandbox-url ...`).
 >
 > Stop after every CP commit, summarize, ask me to continue before the
 > next CP. Quality gates before EVERY commit: `pytest -q` green and
-> `ruff check src tests tools rank.py reasoning_audit.py build_features.py`
+> `ruff check src tests tools rank.py reasoning_audit.py build_features.py app.py`
 > clean.
 >
 > Hard invariants (non-negotiable):
@@ -593,12 +882,17 @@ Paste this verbatim:
 > - `rank.py` import allow-list: `{numpy, pandas, pyarrow, json, sys,
 >   pathlib, yaml}` + `src.*`. `argparse` intentionally NOT included
 >   (sys.argv parsed by hand). Static AST test in
->   `tests/test_rank_imports.py` enforces this.
+>   `tests/test_rank_imports.py` enforces this — `app.py` does NOT pollute
+>   this allow-list (separate entry point).
 > - No hosted LLM, no network, no GPU in `rank.py` (runtime sys.modules
 >   guard inside rank.py + AST test).
 > - BGE-small vendored under `artifacts/model/` — load only via
->   `src.embeddings.load_model` from `build_features.py`.
+>   `src.embeddings.load_model` from `build_features.py` or `app.py`.
 > - No LTR / LambdaMART training. No FAISS / vector DB.
+> - CP-5b ablation findings (load-bearing for CP-S2): A3 dominates top-10
+>   (`availability × logistics` flips 7/10 ranks); A1 ≈ noise (embedding
+>   contributes nothing to top-100 membership); A4/A5 = pure defensive
+>   guardrails. Tune accordingly.
 
 Do **not** re-derive architecture decisions from `problem.md`. They are
 locked. Read `problem.md §3 v2` only if a *new* design question arises
