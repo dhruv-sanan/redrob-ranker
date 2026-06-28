@@ -313,7 +313,7 @@ CP-3's 100K encode took 64 min wall on M4 — predicted 5-8. Root cause:
 
 ## CP-4 — Online ranking + reasoning + audit ✅
 
-**Commit:** `<TBD-pending-CP-4-commit>` (2026-06-28).
+**Commit:** `1221a8c` (2026-06-28).
 **Files:** 21 added/modified, +~2,200 LOC.
 
 ### Shipped
@@ -478,7 +478,7 @@ redrob-ranker/
 ## Commit history
 
 ```
-<TBD>    feat(ranking): full online rank.py + scoring + reasoning + audit (CP-4)
+1221a8c  feat(ranking): full online rank.py + scoring + reasoning + audit (CP-4)
 9716c84  perf(embeddings): MPS auto-detect + thread tuning + parallel tokenizers (CP-3.5)
 79bc5d8  feat(embeddings): vendored BGE-small + full build_features pipeline (CP-3)
 7037ed9  feat(features): 9 feature builders + config + pipeline + build_features.py skeleton (CP-2)
