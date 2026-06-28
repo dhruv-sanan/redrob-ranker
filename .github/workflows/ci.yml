@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Ruff check
+        run: ruff check src tests tools rank.py reasoning_audit.py build_features.py app.py
+
+      - name: Ruff format
+        run: ruff format --check src tests tools rank.py reasoning_audit.py build_features.py app.py
+
+      # Skip integration tests that need vendored model + 100K parquet artifacts.
+      # Module-level skip-guards (_model_available / _artifacts_present) cover the
+      # rest at runtime; this -k filter trims collection of the e2e suites.
+      - name: Pytest (unit only)
+        run: pytest -q -k "not e2e and not integration and not _model_available"
