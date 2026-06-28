@@ -1,0 +1,115 @@
+# Anti-pattern archetypes per problem.md §1.9. Each archetype maps to a score ceiling
+# applied AFTER the linear blend (Phase 4). Ceilings: "rank_50" (cannot enter top 50)
+# and "rank_100" (cannot enter top 100). No ceiling = "none".
+
+non_tech_title:
+  titles:
+    - Marketing Manager
+    - HR Manager
+    - Sales Manager
+    - Customer Support
+    - Operations Manager
+    - Accountant
+    - Content Writer
+    - Brand Manager
+    - Community Manager
+    - Product Marketing Manager
+  retrieval_evidence_threshold: 0.20
+  ceiling: rank_50
+
+non_tech_industry:
+  industries:
+    - Marketing
+    - HR
+    - Sales
+    - Content
+    - Accounting
+    - Customer Support
+  retrieval_evidence_threshold: 0.15
+  ceiling: rank_100
+
+services_only:
+  services_companies:
+    - TCS
+    - Tata Consultancy Services
+    - Infosys
+    - Wipro
+    - Accenture
+    - Cognizant
+    - Capgemini
+    - HCL Technologies
+    - Tech Mahindra
+    - Mindtree
+    - Mphasis
+    - L&T Infotech
+    - LTI
+  ceiling: rank_50
+
+cv_speech_robotics_only:
+  niche_terms:
+    - computer vision
+    - image classification
+    - object detection
+    - semantic segmentation
+    - speech recognition
+    - ASR
+    - text-to-speech
+    - TTS
+    - robotics
+    - motion planning
+    - SLAM
+    - sensor fusion
+  required_absent_terms:  # if any present, do NOT fire ceiling
+    - NLP
+    - retrieval
+    - ranking
+    - information retrieval
+    - recommendation
+    - matching
+    - search
+  ceiling: rank_50
+
+recent_only_langchain:
+  recent_months_window: 12
+  langchain_terms:
+    - LangChain
+    - OpenAI API
+    - Anthropic API
+    - LlamaIndex
+  pre_llm_ml_terms:
+    - retrieval
+    - ranking
+    - embeddings
+    - model training
+    - ML production
+    - fine-tuning
+    - dense retrieval
+  ceiling: rank_50
+
+inactive_architect:
+  titles:
+    - VP Engineering
+    - Tech Architect
+    - Engineering Manager
+    - Director of Engineering
+    - CTO
+    - Engineering Director
+  managerial_terms:
+    - led
+    - stakeholder
+    - roadmap
+    - mentored
+    - oversaw
+    - reviewed
+    - presented
+    - vendor selection
+    - architecture review
+    - OKR
+  production_code_terms:  # if any present in recent role, do NOT fire ceiling
+    - built
+    - shipped
+    - deployed
+    - productionized
+    - refactored
+  inactive_months_window: 18
+  ceiling: rank_50

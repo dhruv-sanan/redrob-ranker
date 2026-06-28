@@ -664,7 +664,9 @@ HONEYPOTS: list[dict[str, Any]] = [
         [_skill("Python", "expert", 5, 24)],
         _signals(skill_assessment_scores={"Python": 70.0}),
     ),
-    # H2: 8 years claimed but `duration_months=12` mismatch on a single 12-month role
+    # H2: 8 years claimed at a role that has only existed for 12 months (duration_months
+    # inflated to 84 — claims 7 yrs tenure at a role started 2025-06; both the role-duration
+    # mismatch AND the yoe-vs-span ratio fire).
     _cand(
         "CAND_0000015",
         _profile(
@@ -681,7 +683,7 @@ HONEYPOTS: list[dict[str, Any]] = [
                 "Senior ML Engineer",
                 "2025-06-01",
                 None,
-                12,
+                84,
                 True,
                 "Internet",
                 "Working on machine learning systems.",
@@ -1388,3 +1390,9 @@ def synthetic_50() -> list[dict[str, Any]]:
 @pytest.fixture
 def fixture_count() -> int:
     return len(SYNTHETIC_50)
+
+
+@pytest.fixture(scope="session")
+def by_id() -> dict[str, dict[str, Any]]:
+    """O(1) candidate lookup by candidate_id. Deep-copied so test mutations don't leak."""
+    return {c["candidate_id"]: deepcopy(c) for c in SYNTHETIC_50}

@@ -1,0 +1,54 @@
+# Phase-2 thresholds. Tunable between submissions without code changes.
+
+honeypot:
+  drop_threshold: 0.65       # honeypot_drop = True
+  audit_threshold: 0.35      # honeypot_audit = True
+  weights:
+    impossible_future_start: 0.5
+    impossible_past_start: 0.5
+    severe_yoe_span_mismatch: 0.5    # yoe*12 > 4*span OR span > 4*yoe*12
+    huge_yoe_span_mismatch: 0.35     # yoe*12 > 3*span OR span > 3*yoe*12
+    role_duration_mismatch_each: 0.2 # per-role |claimed - calc| > 6 months
+    zero_duration_expert: 0.4        # >=3 advanced/expert skills with duration_months=0
+    skill_count_anomaly: 0.3         # >=4 adv/exp AI skills + zero channel-X/Y in any role + zero AI assessment
+    education_chronology_anomaly: 0.25
+    suspicious_perfect: 0.3          # >=8 skills + completeness<50 + (not linkedin OR not verified_email)
+
+stuffer:
+  ai_core_skills:
+    - NLP
+    - RAG
+    - LLM
+    - LoRA
+    - Vector Search
+    - Embeddings
+    - BGE
+    - Pinecone
+    - Weaviate
+    - Qdrant
+    - Information Retrieval
+    - LLM Fine-tuning
+    - Fine-tuning
+    - PyTorch
+  non_technical_titles:
+    - Marketing Manager
+    - HR Manager
+    - Sales Manager
+    - Customer Support
+    - Operations Manager
+    - Accountant
+    - Content Writer
+
+tiering:
+  tier_a:
+    has_production_retrieval_evidence: 0.6
+    has_vector_or_hybrid_search_evidence: 0.4
+    has_python_backend_depth: 0.5
+    has_ranking_eval_evidence: 0.3
+    has_product_company_applied_ml_context: 1.0
+    min_must_haves: 4
+  tier_b:
+    min_must_haves: 2
+    has_shipper_signal: 0.5
+  tier_e:
+    stuffer_risk: 0.7

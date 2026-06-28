@@ -1,0 +1,73 @@
+# 3-channel evidence detection per problem.md §1.5.
+# Per-role evidence: alpha*X + beta*Y + min(1, X+Y) * Z_bonus
+# Case-insensitive, word-boundary matched.
+
+alpha: 0.6
+beta: 0.4
+z_bonus_cap: 0.3
+
+# Channel X — exact technical (retrieval/ranking primitives + named vector stores).
+exact_technical:
+  - NDCG
+  - MRR
+  - MAP
+  - LambdaMART
+  - RAG
+  - BM25
+  - dense retrieval
+  - re-rank
+  - rerank
+  - cross-encoder
+  - LTR
+  - ANN
+  - hybrid search
+  - retrieval
+  - ranking
+  - vector search
+  - vector index
+  - embedding
+  - embeddings
+  - sentence-transformers
+  - BGE
+  - Pinecone
+  - Weaviate
+  - Qdrant
+  - Milvus
+  - FAISS
+  - Elasticsearch
+  - OpenSearch
+
+# Channel Y — plain-language product framing (JD's "right answer" clause).
+plain_language_product:
+  - matching
+  - candidate-role matching
+  - candidate-job matching
+  - personalized feed
+  - personalization
+  - recommendations
+  - recommendation system
+  - similar-item retrieval
+  - search relevance
+  - recruiter search
+  - semantic matching
+  - candidate recommendations
+  - learning from feedback
+  - feedback signals
+
+# Channel Z — system ownership / shipping verbs (boosts when X or Y is present).
+ownership:
+  - built
+  - shipped
+  - owned
+  - deployed
+  - productionized
+  - scaled
+  - monitored
+  - evaluated
+  - A/B
+  - A_B
+  - instrumented
+  - on-call
+  - refactored
+  - migrated
+  - designed

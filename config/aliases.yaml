@@ -1,0 +1,15 @@
+# Skill name normalization. Used by skill_trust to reconcile skill_assessment_scores
+# keys with skills[].name values. Both sides are canonicalized before lookup.
+# Key = source name (as written), value = canonical form.
+
+"Fine-tuning LLMs": Fine-tuning
+"LLM Fine-tuning": Fine-tuning
+"Natural Language Processing": NLP
+"Information Retrieval": IR
+"Sentence-Transformers": Sentence Transformers
+"Sentence Transformers": Sentence Transformers
+"Cross-Encoder": Cross Encoder
+"Vector Search": Vector Search
+"Search Relevance": Search Relevance
+"Recommendation Systems": Recommendation Systems
+"PyTorch": PyTorch

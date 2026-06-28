@@ -1,0 +1,13 @@
+# JD positive-intent vectors per problem.md §1.3.
+# Embedded once in build_features.py; consumed by rank.py as candidate_emb @ jd_intent.T.
+# Anti-pattern intents are NOT here — embeddings encode similarity, not negation.
+
+intents:
+  - production retrieval and ranking systems
+  - vector search infrastructure and embeddings at scale
+  - LLM fine-tuning LoRA PEFT
+  - ranking evaluation NDCG MRR MAP A_B testing
+  - hybrid sparse-dense IR
+  - recommendation systems at product companies
+  - applied NLP and information retrieval
+  - distributed inference and serving

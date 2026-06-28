@@ -1,0 +1,35 @@
+# Linear-blend weights per problem.md §2.5. Used by rank.py (Phase 4).
+# Phase 2 only references this for self-documentation; rank.py will load it.
+
+blend:
+  title_career_fit: 0.20
+  skill_contribution: 0.18
+  retrieval_evidence: 0.22
+  embedding_contribution: 0.12
+  must_have_sum_div_6: 0.10
+  experience_band_fit: 0.08
+  education_signal: 0.05
+  external_validation_signal: 0.05
+
+capped_factor_emb:
+  technical_floor:
+    title_career_fit: 0.4
+    retrieval_evidence: 0.2
+  cap_when_below: 0.2  # else 1.0
+
+capped_factor_skill:
+  technical_floor:
+    title_career_fit: 0.4
+    retrieval_evidence: 0.0  # > 0
+  cap_when_below: 0.3
+
+experience_band:
+  mu: 7.0
+  sigma: 2.2
+
+education_tiers:
+  tier_1: 1.0
+  tier_2: 0.75
+  tier_3: 0.55
+  tier_4: 0.4
+  unknown: 0.5
