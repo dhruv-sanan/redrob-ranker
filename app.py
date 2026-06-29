@@ -20,6 +20,8 @@ Then visit http://127.0.0.1:7860/.
 
 from __future__ import annotations
 
+import ast
+import contextlib
 import io
 import json
 import tempfile
@@ -108,6 +110,23 @@ class RankerState:
 STATE = RankerState()
 
 
+_LIST_FIELDS = ("career_history", "skills", "education")
+
+
+def _coerce_record(record: dict) -> dict:
+    """Coerce string-serialized list fields produced by the old pandas+json.dumps path.
+
+    pandas leaves nested list<struct> columns as numpy arrays; json.dumps(default=str)
+    then stringifies them. ast.literal_eval recovers the original Python structure.
+    """
+    for key in _LIST_FIELDS:
+        val = record.get(key)
+        if isinstance(val, str):
+            with contextlib.suppress(ValueError, SyntaxError):
+                record[key] = ast.literal_eval(val)
+    return record
+
+
 def parse_jsonl_text(text: str) -> list[dict]:
     """Parse a JSONL string into a list of candidate dicts."""
     records: list[dict] = []
@@ -116,7 +135,7 @@ def parse_jsonl_text(text: str) -> list[dict]:
         if not line:
             continue
         try:
-            records.append(json.loads(line))
+            records.append(_coerce_record(json.loads(line)))
         except json.JSONDecodeError as exc:
             raise ValueError(f"line {i}: invalid JSON ({exc.msg})") from exc
     return records
