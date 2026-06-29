@@ -95,9 +95,9 @@ class RankerState:
         self.top_10_cfg = thresholds.get("top_10_promotion", None)
 
     def _vendor_model(self) -> None:
-        from tools.vendor_model import vendor
+        from tools.vendor_model import DEFAULT_MODEL, vendor
 
-        vendor(out_dir=MODEL_DIR)
+        vendor(DEFAULT_MODEL, MODEL_DIR)
 
     def _encode_jd_intents(self) -> np.ndarray:
         cfg = yaml.safe_load((REPO_ROOT / "config" / "jd_intents.yaml").read_text(encoding="utf-8"))

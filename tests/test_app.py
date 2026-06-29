@@ -106,6 +106,32 @@ def test_rank_from_inputs_reports_json_parse_failure():
     assert "Input error" in status
 
 
+def test_vendor_model_call_passes_required_positional_args(monkeypatch):
+    """Regression for HF Space cold-boot crash 2026-06-29.
+
+    ``tools.vendor_model.vendor(model_name, out_dir)`` requires both args
+    positionally. An earlier ``vendor(out_dir=MODEL_DIR)`` call missed
+    ``model_name`` and crashed only on cold HF Spaces (local dev path
+    has ``artifacts/model/`` cached and never enters ``_vendor_model``).
+    Lock the call signature here so future edits cannot silently drop
+    the model_name argument.
+    """
+    import app as app_mod
+    import tools.vendor_model as vendor_mod
+
+    captured: dict[str, object] = {}
+
+    def fake_vendor(model_name: str, out_dir: Path) -> int:
+        captured["model_name"] = model_name
+        captured["out_dir"] = out_dir
+        return 0
+
+    monkeypatch.setattr(vendor_mod, "vendor", fake_vendor)
+    app_mod.RankerState()._vendor_model()
+    assert captured.get("model_name") == vendor_mod.DEFAULT_MODEL
+    assert captured.get("out_dir") == app_mod.MODEL_DIR
+
+
 @pytest.mark.skipif(not _model_available(), reason="vendored BGE model not present")
 def test_rank_sample_end_to_end_returns_ranked_dataframe():
     from app import rank_sample
