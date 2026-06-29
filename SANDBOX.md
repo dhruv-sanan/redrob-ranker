@@ -62,11 +62,27 @@ into the upload panel. Expected: ranked CSV with `candidate_id, rank,
 score, reasoning` in <5 s end-to-end on free CPU.
 
 ```bash
-.venv/bin/python -c "import pandas as pd, json; \
-  print('\\n'.join(json.dumps(r, default=str) for r in \
-  pd.read_parquet('artifacts/candidates.parquet').head(10).to_dict('records')))" \
-  > /tmp/sample10.jsonl
+.venv/bin/python <<'PY' > /tmp/sample10.jsonl
+import json, numpy as np, pyarrow.parquet as pq
+
+def _conv(o):
+    if isinstance(o, np.ndarray): return [_conv(x) for x in o.tolist()]
+    if isinstance(o, dict):       return {k: _conv(v) for k, v in o.items()}
+    if isinstance(o, list):       return [_conv(x) for x in o]
+    return o
+
+for r in pq.read_table('artifacts/candidates.parquet').slice(0, 10).to_pylist():
+    print(json.dumps(_conv(r), default=str))
+PY
 ```
+
+Why `pyarrow.to_pylist() + _conv()` rather than `pandas.to_dict('records')`:
+pandas leaves nested `list<struct>` columns (e.g. `career_history`) as
+numpy ndarrays whose elements are themselves arrays. `json.dumps(default=str)`
+then stringifies them, producing JSONL where `career_history` is a single
+string instead of a list of role dicts. The sandbox crashes on
+`role.get("end_date")` because `role` is now a character. `to_pylist()`
+plus the recursive convert produces clean Python types end-to-end.
 
 ## What the sandbox does NOT do
 
