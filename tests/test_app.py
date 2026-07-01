@@ -7,6 +7,7 @@ case). Cold-clone CI without the model still passes — the guard skips.
 
 from __future__ import annotations
 
+import importlib
 import json
 from pathlib import Path
 
@@ -14,7 +15,10 @@ import pandas as pd
 import pyarrow.parquet as pq
 import pytest
 
-from app import (
+if importlib.util.find_spec("gradio") is None:
+    pytest.skip("gradio not installed — skipping app tests", allow_module_level=True)
+
+from app import (  # noqa: E402
     MAX_SAMPLE_SIZE,
     _render_csv,
     parse_jsonl_text,
