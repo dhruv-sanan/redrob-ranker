@@ -48,3 +48,6 @@ ablation_report.md
 holdout_report.md
 final.md
 HF_HANDOFF.md
+
+# Ad-hoc smoke test samples
+sample*.jsonl

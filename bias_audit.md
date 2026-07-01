@@ -1,13 +1,21 @@
 # Bias Audit — Top-100 V8 Floor
 
 Scope: descriptive distribution comparison of the top-100 cohort vs the
-full 100K candidate baseline across observable profile dimensions. Doc
-only — no fix applied, no weight or threshold changes. Per `final.md
-§4.2`.
+full 100K candidate baseline across observable profile dimensions. Per
+`final.md §4.2`.
 
-Generated: 2026-06-29 against the current V8 floor
-(`top_100_audit.csv` × `artifacts/candidates.parquet`,
-HEAD = `91189bf`).
+Generated: 2026-06-29 against the V8 floor
+(`top_100_audit.csv` × `artifacts/candidates.parquet`, HEAD = `91189bf`).
+
+> **V8b refinement (2026-07-02).** The premier-institution finding below
+> flagged 9.09× over-representation. In response, `education_signal` was
+> halved (0.05 → 0.025) with the freed 0.025 redistributed to
+> `must_have_sum_div_6` (0.14 → 0.165). Effect on the top-100:
+> premier count **33 → 30**, all 13/13 holdout assertions preserved,
+> top-10 + top-50 unchanged, tail (rank 51-100) swaps 3 rows. The 9.09×
+> ratio compresses to **~8.26×** vs the 3.63% baseline. Full numbers
+> below reflect the original V8 snapshot; the V8b delta is only on the
+> premier-institution row of §C.
 
 ---
 

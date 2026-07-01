@@ -18,13 +18,22 @@ blend:
   # Effect on CP-5a plain_language assertion:
   #   median rank 52 → 50 (threshold ≤50 met); frac_top_100 unchanged
   #   at 63.64% (well above 40% floor). All 11 HLD checks remain PASS.
+  #
+  # V8b (2026-07-02) — bias-defense refinement (R1 targeted test):
+  #   education_signal      -0.025 (0.050 → 0.025) — halves the premier
+  #     (IIT/NIT/IIIT/BITS/IISc) amplification flagged in bias_audit.md
+  #     from 33/100 to 30/100 rows without disturbing top-10 or top-50
+  #     ranks (churn_100 = 3, churn_10/50 = 0). 13/13 assertions preserved.
+  #   must_have_sum_div_6   +0.025 (0.140 → 0.165) — absorbs the 0.025
+  #     freed weight into the direct must-have evidence bar; keeps blend
+  #     sum = 1.00 exactly.
   title_career_fit: 0.24
   skill_contribution: 0.18
   retrieval_evidence: 0.22
   embedding_contribution: 0.06
-  must_have_sum_div_6: 0.14
+  must_have_sum_div_6: 0.165
   experience_band_fit: 0.06
-  education_signal: 0.05
+  education_signal: 0.025
   external_validation_signal: 0.05
 
 capped_factor_emb:
