@@ -13,16 +13,17 @@ license: apache-2.0
 
 # redrob-ranker
 
+> **Live demo →** [huggingface.co/spaces/dsanan01/redrob-ranker](https://huggingface.co/spaces/dsanan01/redrob-ranker)
+> Upload ≤ 100 candidates as JSONL, get a ranked CSV in < 5 s on free CPU.
+
 [![ci](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-292%20passing-brightgreen)](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-293%20passing-brightgreen)](https://github.com/dhruv-sanan/redrob-ranker/actions/workflows/ci.yml)
 [![python](https://img.shields.io/badge/python-3.11-blue)](https://www.python.org/downloads/release/python-3110/)
 [![rank.py](https://img.shields.io/badge/rank.py-%E2%89%A42s%20on%20100K-blue)](#commands)
 
 Deterministic CPU-only candidate ranker for the Redrob "Intelligent Candidate Discovery & Ranking" challenge.
 
-> Architecture: see `../problem.md §3 Solution A v2` (LOCKED).
-> Build playbook: see `../lld.md §2` (5-phase plan, CP-1 → CP-S3).
-> Submission gates: see `../hld.md`.
+Architecture: hybrid dense/sparse retrieval evidence + 8-weight linear blend (V8) + tier sort + honeypot guard. No LTR, no GPU, no network at rank time. Full design in `src/` and `config/*.yaml`.
 
 ## 30-second demo
 
