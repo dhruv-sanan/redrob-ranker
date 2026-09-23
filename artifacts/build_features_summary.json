@@ -1,0 +1,27 @@
+{
+  "anti_pattern_archetype_counts": {
+    "none": 58907,
+    "rank_50": 41093
+  },
+  "artifacts_total_bytes": 230276186,
+  "candidate_emb_shape": [
+    100000,
+    384
+  ],
+  "candidates_parsed": 100000,
+  "features_rows": 100000,
+  "honeypot_audit_count": 15143,
+  "honeypot_drop_count": 348,
+  "jd_intent_vecs_shape": [
+    8,
+    384
+  ],
+  "reference_date": "2026-06-01",
+  "tier_histogram": {
+    "A": 82,
+    "B": 384,
+    "C": 10188,
+    "D": 87275,
+    "E": 2071
+  }
+}
